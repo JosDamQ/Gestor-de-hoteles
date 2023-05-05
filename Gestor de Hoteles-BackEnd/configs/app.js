@@ -13,6 +13,7 @@ const hotelRoutes = require('../src/hotel/hotel.routes');
 const reservationRoutes = require('../src/reservation/reservation.routes');
 const billRoutes = require('../src/bill/bill.routes');
 const userController = require('../src/user/user.controller')
+const eventType = require('../src/eventType/eventType.routes')
 
 app.use(express.urlencoded({extended:false}));
 app.use(express.json());
@@ -27,6 +28,7 @@ app.use('/User', userRoutes);
 // app.use('/Reservation',reservationRoutes);
 // app.use('/Room',roomRoutes);
 // app.use('/Bill', billRoutes);
+app.use('/EventType', eventType);
 
 
 exports.initServer = ()=>{
