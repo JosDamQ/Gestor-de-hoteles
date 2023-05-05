@@ -15,12 +15,12 @@ api.get('/searchByName', ensureAuth, hotelController.searchByName);
 api.get('/searchByAddress', ensureAuth, hotelController.searchByAddress);
 
 //Funciones rooms Admin
-api.post('/addRoom/:id', [ensureAuth, isAdmin], hotelController.addRoom);
-api.get('/getRoomsByHotel/:id', ensureAuth, hotelController.getRoomsByHotel);
-api.post('/searchByName/:id', ensureAuth, hotelController.searchRoomByName);
+// api.post('/addRoom/:id', [ensureAuth, isAdmin], hotelController.addRoom);
+// api.get('/getRoomsByHotel/:id', ensureAuth, hotelController.getRoomsByHotel);
+// api.post('/searchByName/:id', ensureAuth, hotelController.searchRoomByName);
 
 //-----------------------------Worker----------------------------------------------
-api.get('/viewHotelsAtYourExpense', [ensureAuth, isWorker], hotelController.getsHotelsAtYourExpense);
-api.get('/availableRooms', ensureAuth, hotelController.viewRoomsAvailable);
+// api.get('/viewHotelsAtYourExpense', [ensureAuth, isWorker], hotelController.getsHotelsAtYourExpense);
+// api.get('/availableRooms', ensureAuth, hotelController.viewRoomsAvailable);
 
 module.exports = api
