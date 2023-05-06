@@ -71,13 +71,13 @@ exports.uptadeEventType = async(req, res)=>{
             description: data.description,
             price: data.price
         }
-            let updatedTypeService = await EventType.findByIdAndUpdate(
-                {_id: eventTypeId},
-                params,
-                {new: true}
-            );
-            if(!updatedTypeService) return res.status(404).send({message: 'Event Type not found'});
-            return res.send({message: 'Event Type Updatesd succesfully'})
+        let updatedTypeService = await EventType.findByIdAndUpdate(
+            { _id: eventTypeId },
+            params,
+            { new: true }
+        );
+        if (!updatedTypeService) return res.status(404).send({ message: 'Event Type not found' });
+        return res.send({ message: 'Event Type Updatesd succesfully' })
         
     }catch(err){
         console.error(err)

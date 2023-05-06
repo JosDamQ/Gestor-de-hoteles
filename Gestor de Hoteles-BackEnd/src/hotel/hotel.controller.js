@@ -16,7 +16,8 @@ exports.addHotel = async (req, res) => {
         let data = req.body
         //let userRole = req.user.rol
         let dataRequired = data.admin;
-        if (!dataRequired || dataRequired == '') return res.status(400).send({ message: 'Params admin is required' })
+        if (!dataRequired || dataRequired == '') return res.status(400).send({ message: 'Params admin is required' });
+        if(data.numberOfRooms) return res.status(400).send({message:'This params is not allowed'})
         //Validar que el usuario exista
         let userExist = await User.findOne({ _id: dataRequired })
         if (!userExist) return res.status(400).send({ message: 'user not found' });
@@ -68,13 +69,21 @@ exports.searchByName = async(req, res) => {
     try{
         let data = req.body;
         let params = {
-            name: data.name
+            name: data.name,
+            address: data.address
         }
         let hotel = await Hotel.find({
-            name: {
-                $regex: params.name,
-                $options: 'i'
-            }
+            $and:[
+                {name: {
+                    $regex: params.name,
+                    $options: 'i'
+                }},
+                {address: {
+                    $regex: params.address,
+                    $options: 'i'
+                }},
+            ]
+            
         })
         return res.send({hotel});
     }catch(err){
@@ -83,24 +92,24 @@ exports.searchByName = async(req, res) => {
     }
 }
 
-exports.searchByAddress = async(req, res) => {
-    try{
-        let data = req.body;
-        let params = {
-            address: data.address
-        }
-        let hotel = await Hotel.find({
-            address: {
-                $regex: params.address,
-                $options: 'i'
-            }
-        })
-        return res.send({hotel});
-    }catch(err){
-        console.error(err);
-        return res.status(500).send({message: 'Error searching Hotel'});
-    }
-}
+// exports.searchByAddress = async(req, res) => {
+//     try{
+//         let data = req.body;
+//         let params = {
+//             address: data.address
+//         }
+//         let hotel = await Hotel.find({
+//             address: {
+//                 $regex: params.address,
+//                 $options: 'i'
+//             }
+//         })
+//         return res.send({hotel});
+//     }catch(err){
+//         console.error(err);
+//         return res.status(500).send({message: 'Error searching Hotel'});
+//     }
+// }
 
 //Rooms
 
