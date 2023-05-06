@@ -3,13 +3,13 @@
 const mongoose = require('mongoose')
 
 const billSchema = mongoose.Schema({
-  description: { type: String, required: true },
+  description: { type: String, required: true},
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   hotel: { type: mongoose.Schema.Types.ObjectId, ref: 'Hotel', required: true },
-  // eventType:  {type: mongoose.Schema.Types.ObjectId, ref: 'EventType'},
+  eventType:  {type: mongoose.Schema.Types.ObjectId, ref: 'EventType'},
   room: { type: mongoose.Schema.Types.ObjectId, ref: 'Room' },
   eventDate: String,
-  entryDate: { type: String, required: true },
+  entryDate: String,
   departureDate: String,
   duration: { type: Number, required: true },
   amountPeople: Number,
@@ -21,5 +21,16 @@ const billSchema = mongoose.Schema({
       }
     }
   ],
+  additionalMeals: [
+    {
+      additionalMeal: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'AdditionalMeals'
+      }
+    }
+  ],
+  paidStatus: {type: Boolean, default: false},
   total: Number
 })
+
+module.exports = mongoose.model('Bill', billSchema);
