@@ -6,6 +6,8 @@ const AdditionalMeals = require('./additionalMeals.model');
 exports.saveAdditionalMeals= async(req,res)=>{
     try {
         let data = req.body;
+        let existMeal = await AdditionalMeals.findOne({name: data.name});
+        if(existMeal) return res.status(400).send({message: 'Meal already exist'});
         let meals = new AdditionalMeals(data);
         await meals.save();
         return res.send({message:'Saved meals sucessfully'});
@@ -20,6 +22,7 @@ exports.getsAdditionalMeals = async(req,res)=>{
         let meals = await AdditionalMeals.find();
         return res.send({meals});
     } catch (err) {
+        console.error(err);
         return res.status(500).send({message:'Error Getting AdditionalMeals'})
     }
 }
