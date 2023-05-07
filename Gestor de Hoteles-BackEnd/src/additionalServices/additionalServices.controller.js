@@ -6,6 +6,8 @@ const AdditionalServices = require('./additionalServices.model');
 exports.saveAdditionalService= async(req,res)=>{
     try {
         let data = req.body;
+        let serviceExist = await AdditionalServices.findOne({name: data.name})
+        if(serviceExist) return res.status(400).send({message: 'Additional Service already exists'});
         let service = new AdditionalServices(data);
         await service.save();
         return res.send({message:'Saved services sucessfully'});
