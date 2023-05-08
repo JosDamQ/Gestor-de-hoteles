@@ -124,6 +124,32 @@ exports.updateUser = async (req, res) => {
   }
 }
 
+exports.updatePasswordUser = async (req, res) => {
+  try {
+    let workerId = req.params.id
+    let params = {
+      before: req.body.before,
+      after: req.body.after
+    }
+    let msg = validateData(params)
+    if (msg) return res.status(400).send({ msg });
+    let user = await User.findOne({ _id: workerId, rol: 'CLIENT' });
+    if (!user) return res.status(404).send({ message: 'Client not found' });
+    params.after = await encrypt(params.after)
+    if (await compare(params.before, user.password)) {
+      await User.findOneAndUpdate(
+        { _id: workerId, rol: 'CLIENT' },
+        { password: params.after },
+        { new: true }
+      )
+      return res.status(201).send({ message: 'Password was updated' })
+    }
+    return res.send({ message: 'Invalid Password' });
+  } catch (err) {
+    console.log(err);
+  }
+}
+
 exports.addWorker = async (req, res) => {
   try {
     let params = {
