@@ -6,7 +6,6 @@ const billController = require('./bill.controller')
 const {ensureAuth} = require('../services/authenticated')
 
 api.get('/test', billController.test);
-api.post('/createReservation', ensureAuth, billController.createReservation)
-api.post('/createEvent', ensureAuth, billController.createEvent)
+api.post('/createBill', ensureAuth, billController.createBill)
 
 module.exports = api;

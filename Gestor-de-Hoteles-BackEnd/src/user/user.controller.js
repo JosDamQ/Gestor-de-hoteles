@@ -8,6 +8,7 @@ const { createToken } = require('../services/jwt');
 exports.test = (req, res) => {
   return res.status(201).send({ message: 'User test running' });
 }
+
 exports.createAdminDefault = async (req, res) => {
   try {
     let adminDefault = {
@@ -56,7 +57,9 @@ exports.login = async (req, res) => {
 exports.register = async (req, res) => {
   try {
     let data = req.body
-    if (!data.password) return res.status(404).send({message: 'Password is required'})
+    if (!data.password || data.password == '') return res.status(404).send({message: 'Password is required'})
+    let existUser = await User.findOne({email: data.email}); 
+    if(existUser) return res.send({message: 'User Email already exist'})
     data.password = await encrypt(data.password)
     data.rol = 'CLIENT';
     let newUser = new User(data);
@@ -101,6 +104,7 @@ exports.getUser = async (req, res) => {
   }
 }
 
+//no puede actualizar la contrase;a pero que si quiere actuazliar que valide las contrase;as
 exports.updateUser = async (req, res) => {
   try {
     let data = req.body;
@@ -115,6 +119,7 @@ exports.updateUser = async (req, res) => {
     let msg = validateData(params)
     if (msg) return res.status(400).send({ msg })
     let userId = req.params.id;
+    if(req.user.sub != userId) return res.status(403).send({message: 'You cant delete this user'})
     let userUpdated = await User.findOneAndUpdate({ _id: userId, rol: 'CLIENT' }, data, { new: true });
     if (!userUpdated) return res.status(404).send({ message: 'User not found' });
     return res.status(201).send({ userUpdated });
@@ -125,14 +130,15 @@ exports.updateUser = async (req, res) => {
 
 exports.updatePasswordUser = async (req, res) => {
   try {
-    let workerId = req.params.id
+    let userId = req.params.id
     let params = {
       before: req.body.before,
       after: req.body.after
     }
     let msg = validateData(params)
+    if(req.user.sub != userId) return res.status(403).send({message: 'You cant update this user'})
     if (msg) return res.status(400).send({ msg });
-    let user = await User.findOne({ _id: workerId, rol: 'CLIENT' });
+    let user = await User.findOne({ _id: userId, rol: 'CLIENT' });
     if (!user) return res.status(404).send({ message: 'Client not found' });
     params.after = await encrypt(params.after)
     if (await compare(params.before, user.password)) {
@@ -174,7 +180,7 @@ exports.addWorker = async (req, res) => {
 
 exports.getWorkers = async (req, res) => {
   try {
-    let workers = await User.findOne({ rol: 'WORKER' }, { password: 0 });
+    let workers = await User.findOne({ rol: 'WORKER' }, { password: 0 }); // para que no traiga los datos param: 0
     return res.status(201).send({ workers })
   } catch (err) {
     console.log(err);
@@ -192,25 +198,6 @@ exports.getWorker = async (req, res) => {
   }
 }
 
-exports.updateWorker = async (req, res) => {
-  try {
-    let workerId = req.params.id
-    let params = {
-      name: req.body.name,
-      surname: req.body.surname,
-      email: req.body.email,
-      phone: req.body.phone
-    }
-    let msg = validateData(params)
-    if (msg) return res.status(400).send({ msg });
-    let workerUpdated = await User.findOneAndUpdate({ _id: workerId, rol: 'WORKER' }, params, { new: true }).lean()
-    if (!workerUpdated) return res.status(404).send({ message: 'Worker not found' });
-    delete workerUpdated.password;
-    return res.status(201).send({ workerUpdated })
-  } catch (err) {
-    console.log(err);
-  }
-}
 
 exports.updatePasswordWorker = async (req, res) => {
   try {
@@ -220,6 +207,7 @@ exports.updatePasswordWorker = async (req, res) => {
       after: req.body.after
     }
     let msg = validateData(params)
+    if(req.user.sub != workerId) return res.status(403).send({message: 'You cant delete this user'})
     if (msg) return res.status(400).send({ msg });
     let user = await User.findOne({ _id: workerId, rol: 'WORKER' });
     if (!user) return res.status(404).send({ message: 'Worker not found' });
@@ -235,6 +223,43 @@ exports.updatePasswordWorker = async (req, res) => {
     return res.send({ message: 'Invalid Password' });
   } catch (err) {
     console.log(err);
+  }
+}
+
+
+exports.updateWorker = async (req, res) => {
+  try {
+    let workerId = req.params.id
+    let params = {
+      name: req.body.name,
+      surname: req.body.surname,
+      email: req.body.email,
+      phone: req.body.phone
+    }
+    if(!req.body.password) return res.status(400).send({message: 'Invalid password'})
+    let msg = validateData(params)
+    let user = await User.findOne({_id: workerId, rol: 'WORKER'});
+    if(!user) return res.status(404).send({message: 'Worker not found or invalid rol'});
+    if (msg) return res.status(400).send({ msg });
+    if(compare(await req.body.password, user.password)){
+      await User.findOneAndUpdate({ _id: workerId, rol: 'WORKER' }, params, { new: true })
+      return res.status(201).send({message: 'Worker Updated succesfully' })
+    }
+    return res.send({message: 'Invalid password'})
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+exports.deleteUser = async(req, res) =>{
+  try {
+    let userId = req.params.id;
+    if(!req.body.password) return res.status(400).send({message: 'Invalid password'})
+    if(req.user.sub != userId) return res.status(403).send({message: 'You cant delete this user'});
+    await User.findOneAndDelete({_id: userId});
+    return res.send({message: 'User deleted succesfully'})
+  } catch (err) {
+    console.error(err)
   }
 }
 
