@@ -8,13 +8,6 @@ const { createToken } = require('../services/jwt');
 exports.test = (req, res) => {
   return res.status(201).send({ message: 'User test running' });
 }
-exports.getInfoUser = async(req, res)=>{
-  try {
-    return res.send({user: req.user})
-  } catch (err) {
-    console.log(err);
-  }
-}
 exports.createAdminDefault = async (req, res) => {
   try {
     let adminDefault = {

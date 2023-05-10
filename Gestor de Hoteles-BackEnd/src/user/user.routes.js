@@ -11,7 +11,6 @@ api.post('/login', userController.login);
 api.post('/register', userController.register);
 api.get('/getUser/:id', ensureAuth, userController.getUser)
 //api.post('/createUser', ensureAuth, userController.createUser)
-api.get('/getInfoUser', ensureAuth, userController.getInfoUser)
 api.get('/getUsers', ensureAuth, userController.getUsers)
 api.put('/updateUser/:id', ensureAuth, userController.updateUser)
 api.post('/addWorker', ensureAuth, userController.addWorker)
