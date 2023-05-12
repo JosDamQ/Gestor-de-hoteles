@@ -13,7 +13,7 @@
     --button-bg-light: #f3f3f3;
     --cards-area-bg: #f4f4f6;
     --cards-bg: #fff;
-    --buttons-color-primary: #d84851;
+    --buttons-color-primary: #7ED957;
     --buttons-color-secondary: #f8e4e5;
     --filter-bg: #fff;
     --search-bg: #fff;
@@ -72,7 +72,6 @@ body, html {
     height: 100%;
     margin: 0;
     padding: 0;
-    overflow: hidden;
     background-color: var(--app-bg);
     transition: 0.2s;
 }
@@ -148,7 +147,7 @@ button, a {
     object-fit: cover;
 }
 section.app-actions {
-    padding: 16 20px 0 20px;
+    padding: 16px 40px 0 40px;
 }
 .btn-icon {
     width: 16px;
