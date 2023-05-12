@@ -4,6 +4,7 @@ import { AuthContext } from "../Index";
 import swal from "sweetalert";
 import { useNavigate } from "react-router-dom";
 
+
 export const LoginPage = () => {
   const navigate = useNavigate()
   const { loggedIn, setLoggedIn } = useContext(AuthContext);
@@ -11,6 +12,8 @@ export const LoginPage = () => {
     email: "",
     password: "",
   });
+
+  
 
   const handleChange = (e) => {
     setForm({

@@ -4,7 +4,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { HomePage } from "./pages/Home/HomePage";
 import { LoginPage } from "./pages/LoginPage";
-import { RegisterPage } from "./pages/RegisterPage";
+import { RegisterPage } from "./pages/RegisterPage/RegisterPage";
 
 export const AuthContext = createContext();
 
