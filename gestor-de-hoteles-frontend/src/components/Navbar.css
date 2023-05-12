@@ -1,0 +1,25 @@
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  list-style: none;
+  text-decoration: none;
+}
+.navbar{
+  padding: 0 20px;
+  height:  50px;
+  display: flex;
+  justify-content: space-evenly;
+  background: #FFEAC9;
+}
+.btnNavbar{
+  height: 100%;
+  display: flex;
+  cursor: pointer;
+  background: red;
+  padding: 10px 0;
+  transition: all .3s cubic-bezier(0.165, 0.84, 0.44, 1)
+}
+.btnNavbar:hover{
+  padding: 20px 0;
+}
