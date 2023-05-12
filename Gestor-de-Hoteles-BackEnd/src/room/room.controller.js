@@ -18,9 +18,8 @@ exports.saveRoom = async(req, res)=>{
         let existRoom = await Room.findOne({number: data.number, hotel:data.hotel});
         if(existRoom) return res.status(400).send({message: 'Room number already exist'});
         // return res.send({existRoom})
-        let hotelExist = await Hotel.findById({_id: data.hotel});
-        console.log(hotelExist);
-        if(!hotelExist || role != hotelExist.admin) return res.status(400).send({message: 'Your not the admin of this hotel'});
+        let hotelExist = await Hotel.findById(data.hotel);
+        if(role != hotelExist.admin) return res.status(400).send({message: 'Your not the admin of this hotel'});
         if (!hotelExist) return res.status(404).send({ message: 'Hotel not found' });
         hotelExist.numberOfRooms += 1;
         await hotelExist.save();
