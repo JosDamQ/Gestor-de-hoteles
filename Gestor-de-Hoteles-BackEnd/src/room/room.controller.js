@@ -15,12 +15,14 @@ exports.saveRoom = async(req, res)=>{
     try {
         let data = req.body;
         let role = req.user.sub
+        if(!data.name || data.name == '' || !data.number || data.number == '' || !data.hotel || data.hotel == '' ||
+           !data.description || data.description == '' || !data.available || data.available == '' ||
+           !data.price || data.price == '') return res.status(400).send({message: 'Params is required'});
         let existRoom = await Room.findOne({number: data.number, hotel:data.hotel});
         if(existRoom) return res.status(400).send({message: 'Room number already exist'});
-        // return res.send({existRoom})
         let hotelExist = await Hotel.findById(data.hotel);
-        if(role != hotelExist.admin) return res.status(400).send({message: 'Your not the admin of this hotel'});
         if (!hotelExist) return res.status(404).send({ message: 'Hotel not found' });
+        if(role != hotelExist.admin) return res.status(400).send({message: 'Your not the admin of this hotel'});
         hotelExist.numberOfRooms += 1;
         await hotelExist.save();
         let newRoom = new Room(data);
@@ -31,6 +33,17 @@ exports.saveRoom = async(req, res)=>{
         return res.status(500).send({message: 'Error adding new room'})
     }
 }
+
+/*exports.saveRoom = async(req, res)=>{
+    try{
+        let data = req.body;
+        let adminId = req.user.sub;
+        let hotelExist = await Hotel.findById(data.hotel);
+    }catch(err){
+        console.log(err);
+        return res.status(500).send({message: 'Error adding new room'})
+    }
+}*/
 
 exports.getsRoomsByHotel = async(req, res)=>{
     try {
@@ -73,9 +86,11 @@ exports.updateRoom = async(req, res)=>{
             name: data.name,
             number: data.number,
             description: data.description,
+            available: data.available,
             price: data.price
         }
-
+        if(!data.name || data.name == '' || !data.number || data.number == '' || !data.description || data.description == '' ||
+           !data.price || data.price == '' || !data.available || data.available == '') return res.status(400).send({menubar: 'Params is required'});
         let room = await Room.findOne({_id: roomId}).populate('hotel');
         if(role != room.hotel.admin/*.toString()*/) return res.status(401).send({message: 'Your not admin of this hotel'}) 
         if(room.available == false) return res.status(400).send({message: 'This room is ocupated'});
