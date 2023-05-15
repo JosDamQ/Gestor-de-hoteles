@@ -1,6 +1,6 @@
 import React from "react";
 
-export const Card = ({hotel, price, description}) => {
+export const Card = ({name, address, email, phone}) => {
   return (
     <div className="card-wrapper main-card">
       <a className="card cardItemjs">
@@ -11,11 +11,18 @@ export const Card = ({hotel, price, description}) => {
           />
         </div>
         <div className="card-info">
-          <div className="card-text big cardText-js">{hotel}</div>
-          <div className="card-text small">{description}</div>
+          <div className="card-text big cardText-js">{name}</div>
           <div className="card-text small">
             Starts from:
-            <span className="card-price">{price}</span>
+            <span className="card-price">{address}</span>
+          </div>
+          <div className="card-text small">
+            Starts from:
+            <span className="card-price">{email}</span>
+          </div>
+          <div className="card-text small">
+            Starts from:
+            <span className="card-price">{phone}</span>
           </div>
         </div>
       </a>
