@@ -9,9 +9,9 @@ const {ensureAuth, isAdmin, isWorker} = require('../services/authenticated');
 //Funciones hotel Admin
 api.get('/test', hotelController.test);
 api.post('/add', [ensureAuth, isAdmin], hotelController.addHotel);
-api.get('/gets', [ensureAuth], hotelController.getsHotels);
+api.get('/gets', hotelController.getsHotels);
 api.get('/get/:id', [ensureAuth], hotelController.getHotel);
-api.get('/searchByNameAndAddress', ensureAuth, hotelController.searchByName);
+api.post('/searchByNameAndAddress', hotelController.searchByName);
 // api.get('/searchByAddress', ensureAuth, hotelController.searchByAddress);
 
 //Funciones rooms Admin

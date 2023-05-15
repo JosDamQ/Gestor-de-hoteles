@@ -1,9 +1,49 @@
-import React from "react";
+import React, {useState, useEffect} from "react";
 import Navbar from "../../components/Navbar";
 import "../Home/HomePage.css";
 import { Card } from "../../components/Card";
+import axios from 'axios'
 
 export const HomePage = () => {
+
+  
+  const [hotels, setHotels] = useState([{}]);
+    const [form, setForm] = useState({
+        name: '',
+        address: ''
+    })
+
+    const handleChange = (e)=>{
+        setForm({
+            ...form,
+            [e.target.name]: e.target.value
+        })
+    }
+
+    const getHotels = async () => {
+      try {
+        const { data } = await axios ('http://localhost:2765/Hotel/gets');
+        setHotels(data.hotels);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    const searchHotelsByNameAndAddress = async () => {
+      try {
+        setHotels([]);
+        const { data } = await axios.post('http://localhost:2765/Hotel/searchByNameAndAddress', form);
+        if(!data) getHotels();
+        setHotels(data.hotels);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    useEffect(() => {
+      getHotels();
+    }, []);
+
   return (
     <>
       <div className="app-container">
@@ -91,14 +131,16 @@ export const HomePage = () => {
               <input
                 type="text"
                 className="search-input"
+                onChange={handleChange} name='address'
                 placeholder="¿En que zona desea Buscar?"
               />
               <input
                 type="text"
                 className="search-input"
+                onChange={handleChange} name='name'
                 placeholder="¿Ya sabes en que hotel?"
               />
-              <button className="search-btn">Find Hotel</button>
+              <button onClick={searchHotelsByNameAndAddress} className="search-btn">Find Hotel</button>
             </div>
             <div className="contact-actions-wrapper">
               <div className="contact-actions">
@@ -136,21 +178,20 @@ export const HomePage = () => {
         </section>
         <section className="app-main">
           <div className="app-main-left cards-area">
-            <Card
-              hotel="Las americas"
-              price="Q200"
-              description="Bonito hotel"
-            ></Card>
-            <Card
-              hotel="Las americas"
-              price="Q200"
-              description="Bonito hotel"
-            ></Card>
-            <Card
-              hotel="Las americas"
-              price="Q200"
-              description="Bonito hotel"
-            ></Card>
+          {
+          hotels.map(({name, address, email, phone}, i)=>{
+            return(
+              <Card 
+                key={i}
+                name={name}
+                address={address}
+                email={email}
+                phone={phone}
+                >
+              </Card>
+            )
+          })
+        }
             
           </div>
           <div className="app-main-right cards-area">
@@ -158,21 +199,6 @@ export const HomePage = () => {
               <span>Latest Deals</span>
               <a href="#">See More</a>
             </div>
-            <Card
-              hotel="Las americas"
-              price="Q200"
-              description="Bonito hotel"
-            ></Card>
-            <Card
-              hotel="Las americas"
-              price="Q200"
-              description="Bonito hotel"
-            ></Card>
-            <Card
-              hotel="Las americas"
-              price="Q200"
-              description="Bonito hotel"
-            ></Card>
             <Card
               hotel="Las americas"
               price="Q200"
