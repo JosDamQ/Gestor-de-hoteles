@@ -9,10 +9,10 @@ api.get('/test', userController.test);
 api.post('/login', userController.login);
 //Funciones CLIENT
 api.post('/register', userController.register);
-api.get('/getUser/:id', [ensureAuth, isAdmin], userController.getUser)
+api.get('/getUser/:id', ensureAuth, userController.getUser)
 //api.post('/createUser', ensureAuth, userController.createUser)
-api.get('/getUsers', [ensureAuth, isAdmin], userController.getUsers)
-//api.put('/updateUser/:id', ensureAuth, userController.updateUser)
+api.get('/getUsers', ensureAuth, userController.getUsers)
+api.put('/updateUser/:id', ensureAuth, userController.updateUser)
 api.post('/addWorker', [ensureAuth, isAdmin], userController.addWorker)
 api.get('/getWorkers', [ensureAuth, isAdmin], userController.getWorkers)
 api.get('/getWorker/:id', [ensureAuth, isAdmin], userController.getWorker)

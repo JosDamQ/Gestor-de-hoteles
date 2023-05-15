@@ -105,8 +105,7 @@ exports.getUser = async (req, res) => {
 }
 
 //no puede actualizar la contrase;a pero que si quiere actuazliar que valide las contrase;as
-
-exports.updateUser = async(req, res) => {
+exports.updateUser = async (req, res) => {
   try {
     let data = req.body;
     if (data.email || data.email == '') return res.send({ message: 'Email is not allowed' })
@@ -131,7 +130,6 @@ exports.updateUser = async(req, res) => {
     console.log(err);
   }
 }
-
 
 exports.updatePasswordUser = async (req, res) => {
   try {

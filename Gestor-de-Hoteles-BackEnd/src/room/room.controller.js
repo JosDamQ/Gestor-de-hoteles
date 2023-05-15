@@ -34,17 +34,6 @@ exports.saveRoom = async(req, res)=>{
     }
 }
 
-/*exports.saveRoom = async(req, res)=>{
-    try{
-        let data = req.body;
-        let adminId = req.user.sub;
-        let hotelExist = await Hotel.findById(data.hotel);
-    }catch(err){
-        console.log(err);
-        return res.status(500).send({message: 'Error adding new room'})
-    }
-}*/
-
 exports.getsRoomsByHotel = async(req, res)=>{
     try {
         let hotelId = req.params.id;
