@@ -6,8 +6,7 @@ const AdditionalMeals = require('./additionalMeals.model');
 exports.saveAdditionalMeals= async(req,res)=>{
     try {
         let data = req.body;
-        if(!data.name || data.name == '' || !data.description || data.description == '' || !data.price || data.price == '') return res.status(400).send({message: 'Params required'});
-        let existMeal = await AdditionalMeals.findOne({name: data.name, description: data.description});
+        let existMeal = await AdditionalMeals.findOne({name: data.name});
         if(existMeal) return res.status(400).send({message: 'Meal already exist'});
         let meals = new AdditionalMeals(data);
         await meals.save();
@@ -47,7 +46,6 @@ exports.searchAdditionalMealsByName = async(req, res)=>{
         let params = {
             name: data.name
         }
-        if(!data.name || data.name == '') return res.status(400).send({message: 'Params required'})
         let additionalMeals = await AdditionalMeals.find({
             name: {
                 $regex: params.name,
@@ -65,8 +63,7 @@ exports.update = async(req,res)=>{
     try {
         let mealsId = req.params.id;
         let data = req.body;
-        if(!data.name || data.name == '' || !data.description || data.description == '' || !data.price || data.price == '') return res.status(400).send({message: 'Params required'});
-        let existMeals = await AdditionalMeals.findOne({name: data.name, description: data.description});
+        let existMeals = await AdditionalMeals.findOne({name: data.name});
         if(existMeals){
             if (existMeals._id != mealsId) return res.send({message:'meal its already created'});
             let updatedMeal = await AdditionalMeals.findOneAndUpdate(

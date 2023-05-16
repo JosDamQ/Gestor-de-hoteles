@@ -12,8 +12,6 @@ export const LoginPage = () => {
     password: "",
   });
 
-  
-
   const handleChange = (e) => {
     setForm({
       ...form,

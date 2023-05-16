@@ -34,7 +34,7 @@ exports.login = async (req, res) => {
     let data = req.body
     let user = await User.findOne({ email: data.email });
 
-    if (!data.password || data.password == ''|| !data.email || data.email == '') return res.status(500).send({ message: 'Params required' });
+    if (!data.password) return res.status(500).send({ message: 'Password is required' });
     if (user && await compare(data.password, user.password)) {
       // if (user.rol != 'ADMIN' && user.rol != 'WORKER')
       //   return res.status(500).send({ message: `You don't have permissions` })
@@ -57,8 +57,7 @@ exports.login = async (req, res) => {
 exports.register = async (req, res) => {
   try {
     let data = req.body
-    if (!data.password || data.password == '' ||!data.name || data.name == '' || !data.surname || data.surname == '' ||
-        !data.email || data.email == '' || !data.phone || data.phone == '') return res.status(404).send({message: 'Password is required'})
+    if (!data.password || data.password == '') return res.status(404).send({message: 'Password is required'})
     let existUser = await User.findOne({email: data.email}); 
     if(existUser) return res.send({message: 'User Email already exist'})
     data.password = await encrypt(data.password)
@@ -120,10 +119,7 @@ exports.updateUser = async (req, res) => {
     let msg = validateData(params)
     if (msg) return res.status(400).send({ msg })
     let userId = req.params.id;
-    if(req.user.sub != userId) return res.status(403).send({message: 'You cant edit this user'})
-    // let userId = req.user.sub
-    // let user = await User.findOne({_id: userId.id})
-    // if(!user) return res.status(400).send({message: ''})
+    if(req.user.sub != userId) return res.status(403).send({message: 'You cant delete this user'})
     let userUpdated = await User.findOneAndUpdate({ _id: userId, rol: 'CLIENT' }, data, { new: true });
     if (!userUpdated) return res.status(404).send({ message: 'User not found' });
     return res.status(201).send({ userUpdated });
