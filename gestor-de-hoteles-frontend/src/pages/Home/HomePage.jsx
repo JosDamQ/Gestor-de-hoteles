@@ -9,7 +9,8 @@ export const HomePage = () => {
 
   const [hotels, setHotels] = useState([{}]);
   const [rooms, setRooms] = useState([]);
-  const [selectedHotel, setSelectedHotel] = useState('Latest Deals');
+  const [selectedHotel, setSelectedHotel] = useState({});
+  const [message, setMessage] = useState()
   const [form, setForm] = useState({
     name: '',
     address: ''
@@ -45,9 +46,9 @@ export const HomePage = () => {
     }
   }
 
-  const getRoomByHotel = async (hotelId, hotelName) => {
+  const getRoomByHotel = async (hotelId, hotelName, hotelAddress, hotelEmail, hotelPhone) => {
     try {
-      setSelectedHotel(hotelName);
+      setSelectedHotel({id: hotelId, name: hotelName, address:hotelAddress, email:hotelEmail, Phone:hotelPhone});
       setHotels([]);
       setRooms([]);
       const { data } = await axios.get(`http://localhost:2765/Room/getsByHotel/${hotelId}`);
@@ -61,6 +62,14 @@ export const HomePage = () => {
   useEffect(() => {
     getHotels();
   }, []);
+
+  useEffect(() => {
+    if (selectedHotel.name) {
+      setMessage(`Selected Hotel: ${selectedHotel.name}`);
+    } else {
+      setMessage('Latest Deals');
+    }
+  }, [selectedHotel]);
 
 
   return (
@@ -229,7 +238,9 @@ export const HomePage = () => {
           </div>
           <div className="app-main-right cards-area">
             <div className="app-main-right-header">
-              <span>{selectedHotel}</span>
+              <spang>{selectedHotel.name || "Latest Deals"}</span>
+              <br></br>
+              <h1>{selectedHotel.address || ""}</h1>
               <a href="#">See More</a>
             </div>
             {
