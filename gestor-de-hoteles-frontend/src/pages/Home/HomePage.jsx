@@ -1,48 +1,67 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "../../components/Navbar";
 import "../Home/HomePage.css";
 import { Card } from "../../components/Card";
+import { CardRoom } from "../../components/CardRoom";
 import axios from 'axios'
 
 export const HomePage = () => {
 
-  
   const [hotels, setHotels] = useState([{}]);
-    const [form, setForm] = useState({
-        name: '',
-        address: ''
+  const [rooms, setRooms] = useState([]);
+  const [selectedHotel, setSelectedHotel] = useState('Latest Deals');
+  const [form, setForm] = useState({
+    name: '',
+    address: ''
+  })
+
+
+
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value
     })
+  }
 
-    const handleChange = (e)=>{
-        setForm({
-            ...form,
-            [e.target.name]: e.target.value
-        })
+  const getHotels = async () => {
+    try {
+      const { data } = await axios('http://localhost:2765/Hotel/gets');
+      setHotels(data.hotels);
+    } catch (err) {
+      console.error(err);
     }
+  }
 
-    const getHotels = async () => {
-      try {
-        const { data } = await axios ('http://localhost:2765/Hotel/gets');
-        setHotels(data.hotels);
-      } catch (err) {
-        console.error(err);
-      }
+  const searchHotelsByNameAndAddress = async () => {
+    try {
+      setHotels([]);
+      setRooms([]);
+      const { data } = await axios.post('http://localhost:2765/Hotel/searchByNameAndAddress', form);
+      if (!data) getHotels();
+      setHotels(data.hotels);
+    } catch (err) {
+      console.error(err);
     }
+  }
 
-    const searchHotelsByNameAndAddress = async () => {
-      try {
-        setHotels([]);
-        const { data } = await axios.post('http://localhost:2765/Hotel/searchByNameAndAddress', form);
-        if(!data) getHotels();
-        setHotels(data.hotels);
-      } catch (err) {
-        console.error(err);
-      }
+  const getRoomByHotel = async (hotelId, hotelName) => {
+    try {
+      setSelectedHotel(hotelName);
+      setHotels([]);
+      setRooms([]);
+      const { data } = await axios.get(`http://localhost:2765/Room/getsByHotel/${hotelId}`);
+      setRooms(data.rooms);
+    } catch (err) {
+      console.error(err)
     }
+  }
 
-    useEffect(() => {
-      getHotels();
-    }, []);
+
+  useEffect(() => {
+    getHotels();
+  }, []);
+
 
   return (
     <>
@@ -178,36 +197,60 @@ export const HomePage = () => {
         </section>
         <section className="app-main">
           <div className="app-main-left cards-area">
-          {
-          hotels.map(({name, address, email, phone}, i)=>{
-            return(
-              <Card 
-                key={i}
-                name={name}
-                address={address}
-                email={email}
-                phone={phone}
-                >
-              </Card>
-            )
-          })
-        }
-            
+            {
+              hotels.map(({ _id, name, address, email, phone }, i) => {
+                return (
+                  <Card
+                    key={i}
+                    name={name}
+                    address={address}
+                    email={email}
+                    phone={phone}
+                    onClick={() => {getRoomByHotel(_id, name, address, email, phone) }}
+                  >
+                  </Card>
+                )
+              })
+            }
+            {
+              rooms.map(({ _id, hotel, number, price, description }, i) => {
+                return (
+                  <CardRoom
+                    key={i}
+                    hotel={hotel}
+                    number={number}
+                    price={price}
+                    description={description}
+                  ></CardRoom>
+                );
+              })
+            }
+
           </div>
           <div className="app-main-right cards-area">
             <div className="app-main-right-header">
-              <span>Latest Deals</span>
+              <span>{selectedHotel}</span>
               <a href="#">See More</a>
             </div>
-            <Card
-              hotel="Las americas"
-              price="Q200"
-              description="Bonito hotel"
-            ></Card>
+            {
+              hotels.map(({ _id, name, address, email, phone }, i) => {
+                return (
+                  <Card
+                    key={i}
+                    name={name}
+                    address={address}
+                    email={email}
+                    phone={phone}
+                    onClick={() => getRoomByHotel(_id)}
+                  >
+                  </Card>
+                )
+              })
+            }
           </div>
         </section>
       </div>
-      
+
     </>
   );
 };
