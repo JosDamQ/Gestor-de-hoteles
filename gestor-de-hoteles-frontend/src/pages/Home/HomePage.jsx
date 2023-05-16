@@ -1,13 +1,83 @@
-import React from "react";
-import Navbar from "../../components/Navbar";
+import React, { useState, useEffect } from "react";
+import {Navbar} from "../../components/Navbar";
 import "../Home/HomePage.css";
 import { Card } from "../../components/Card";
+import { CardRoom } from "../../components/CardRoom";
+import { ModalRoom } from '../../components/Modals/ModalRoom'
+import axios from 'axios'
 
 export const HomePage = () => {
+
+  const [showModalRoom, setShowModalRoom] = useState(false);
+  const [hotels, setHotels] = useState([{}]);
+  const [rooms, setRooms] = useState([]);
+  const [selectedHotel, setSelectedHotel] = useState({});
+  const [message, setMessage] = useState()
+  const [form, setForm] = useState({
+    name: '',
+    address: ''
+  })
+
+
+
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value
+    })
+  }
+
+  const getHotels = async () => {
+    try {
+      const { data } = await axios('http://localhost:2765/Hotel/gets');
+      setHotels(data.hotels);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  const searchHotelsByNameAndAddress = async () => {
+    try {
+      setHotels([]);
+      setRooms([]);
+      const { data } = await axios.post('http://localhost:2765/Hotel/searchByNameAndAddress', form);
+      if (!data) getHotels();
+      setHotels(data.hotels);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  const getRoomByHotel = async (hotelId, hotelName, hotelAddress, hotelEmail, hotelPhone) => {
+    try {
+      setSelectedHotel({id: hotelId, name: hotelName, address:hotelAddress, email:hotelEmail, Phone:hotelPhone});
+      setHotels([]);
+      setRooms([]);
+      const { data } = await axios.get(`http://localhost:2765/Room/getsByHotel/${hotelId}`);
+      setRooms(data.rooms);
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+
+  useEffect(() => {
+    getHotels();
+  }, []);
+
+  useEffect(() => {
+    if (selectedHotel.name) {
+      setMessage(`Selected Hotel: ${selectedHotel.name}`);
+    } else {
+      setMessage('Latest Deals');
+    }
+  }, [selectedHotel]);
+
   return (
     <>
       <div className="app-container">
-        <section className="navigation">
+        <Navbar></Navbar>
+        {/* <section className="navigation">
           <div className="navigation">
             <img
               src="../src/assets/Hotel4All.png"
@@ -69,7 +139,7 @@ export const HomePage = () => {
               />
             </button>
           </div>
-        </section>
+        </section> */}
         <section className="app-actions">
           <div className="app-actions-line">
             <div className="search-wrapper">
@@ -91,14 +161,16 @@ export const HomePage = () => {
               <input
                 type="text"
                 className="search-input"
+                onChange={handleChange} name='address'
                 placeholder="¿En que zona desea Buscar?"
               />
               <input
                 type="text"
                 className="search-input"
+                onChange={handleChange} name='name'
                 placeholder="¿Ya sabes en que hotel?"
               />
-              <button className="search-btn">Find Hotel</button>
+              <button onClick={searchHotelsByNameAndAddress} className="search-btn">Find Hotel</button>
             </div>
             <div className="contact-actions-wrapper">
               <div className="contact-actions">
@@ -135,53 +207,84 @@ export const HomePage = () => {
           </div>
         </section>
         <section className="app-main">
+          <button onClick={()=> setShowModalRoom(true)} >Mostrar modal</button>
+          {showModalRoom ? <ModalRoom showModalRoom={showModalRoom} setShowModalRoom={setShowModalRoom}></ModalRoom> : <></>}
+        <div>
+                {
+                  selectedHotel.address ? (
+                    <div>
+                      <button onClick={()=>setShowModalRoom(true)}>Agregar Cuarto</button>
+                      <ModalRoom modal={showModalRoom} setModal={setShowModalRoom}></ModalRoom>
+                    </div>
+                  ) : ( <></>)
+                }
+            </div>
           <div className="app-main-left cards-area">
-            <Card
-              hotel="Las americas"
-              price="Q200"
-              description="Bonito hotel"
-            ></Card>
-            <Card
-              hotel="Las americas"
-              price="Q200"
-              description="Bonito hotel"
-            ></Card>
-            <Card
-              hotel="Las americas"
-              price="Q200"
-              description="Bonito hotel"
-            ></Card>
-            
+          
+            {
+              hotels.map(({ _id, name, address, email, phone }, i) => {
+                return (
+                  <Card
+                    key={i}
+                    name={name}
+                    address={address}
+                    email={email}
+                    phone={phone}
+                    onClick={() => {getRoomByHotel(_id, name, address, email, phone) }}
+                  >
+                  </Card>
+                )
+              })
+            }
+            {
+              rooms.map(({ _id, hotel, number, price, description }, i) => {
+                return (
+                  <CardRoom
+                    key={i}
+                    hotel={hotel}
+                    number={number}
+                    price={price}
+                    description={description}
+                    onClick={()=> {}}
+                  ></CardRoom>
+                );
+              })
+            }
+
           </div>
+          {
+            //card de hoteles
+          }
           <div className="app-main-right cards-area">
             <div className="app-main-right-header">
-              <span>Latest Deals</span>
-              <a href="#">See More</a>
+              <div>
+                <span>{selectedHotel.name || "Latest Deals"}</span>
+                <br></br>
+                <h1>{selectedHotel.address || ""}</h1>
+                <a href="#">See More</a>
+              </div>
+              
             </div>
-            <Card
-              hotel="Las americas"
-              price="Q200"
-              description="Bonito hotel"
-            ></Card>
-            <Card
-              hotel="Las americas"
-              price="Q200"
-              description="Bonito hotel"
-            ></Card>
-            <Card
-              hotel="Las americas"
-              price="Q200"
-              description="Bonito hotel"
-            ></Card>
-            <Card
-              hotel="Las americas"
-              price="Q200"
-              description="Bonito hotel"
-            ></Card>
+            
+            {
+              hotels.map(({ _id, name, address, email, phone }, i) => {
+                return (
+                  <Card
+                    key={i}
+                    name={name}
+                    address={address}
+                    email={email}
+                    phone={phone}
+                    onClick={() => getRoomByHotel(_id)}
+                  >
+                  </Card>
+                )
+              })
+            }
           </div>
         </section>
       </div>
-      
+
     </>
   );
 };

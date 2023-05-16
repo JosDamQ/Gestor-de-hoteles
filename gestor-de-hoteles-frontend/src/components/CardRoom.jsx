@@ -1,8 +1,8 @@
 import React from "react";
 
-export const Card = ({_id, name, address, email, phone, onClick}) => {
+export const CardRoom = ({name, number, description, price, onClick}) => {
   return (
-    <div className="card-wrapper main-card " onClick={onClick}>
+    <div className="card-wrapper main-card" onClick={onClick}>
       <a className="card cardItemjs">
         <div className="card-image-wrapper">
           <img
@@ -13,16 +13,16 @@ export const Card = ({_id, name, address, email, phone, onClick}) => {
         <div className="card-info">
           <div className="card-text big cardText-js">{name}</div>
           <div className="card-text small">
-            Starts from:
-            <span className="card-price">{address}</span>
+            Numero de habitacion:
+            <span className="card-price">{number}</span>
           </div>
           <div className="card-text small">
-            Starts from:
-            <span className="card-price">{email}</span>
+            descripcion:
+            <span className="card-price">{description}</span>
           </div>
           <div className="card-text small">
-            Starts from:
-            <span className="card-price">{phone}</span>
+            Precio:
+            <span className="card-price">{price}</span>
           </div>
         </div>
       </a>
