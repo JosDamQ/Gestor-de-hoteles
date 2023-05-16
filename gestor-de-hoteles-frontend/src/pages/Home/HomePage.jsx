@@ -72,7 +72,7 @@ export const HomePage = () => {
       setMessage('Latest Deals');
     }
   }, [selectedHotel]);
-
+  const [showModalHotel, setShowModalHotel] = useState(false)
   return (
     <>
       <div className="app-container">
@@ -208,7 +208,15 @@ export const HomePage = () => {
         </section>
         <section className="app-main">
           <button onClick={()=> setShowModalRoom(true)} >Mostrar modal</button>
-          {showModalRoom ? <ModalRoom showModalRoom={showModalRoom} setShowModalRoom={setShowModalRoom}></ModalRoom> : <></>}
+          <button onClick={()=> setShowModalHotel(true)} >Mostrar hotel</button>
+          {showModalRoom ? <ModalRoom titleModal= {'Agregar'} showModalRoom={showModalRoom} setShowModalRoom={setShowModalRoom}>
+            <p>Hola mundo</p>
+            <button onClick={()=>alert("hola mundo")} >Alerta</button>
+          </ModalRoom> : <></>}
+          {showModalHotel ? <ModalRoom titleModal= {'No agregar'} showModalRoom={showModalHotel} setShowModalRoom={setShowModalHotel}>
+            <p>No agregar hotel</p>
+            <button onClick={()=>alert("hola mundo")} >Alerta</button>
+          </ModalRoom> : <></>}
         <div>
                 {
                   selectedHotel.address ? (
