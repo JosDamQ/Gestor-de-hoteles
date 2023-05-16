@@ -34,7 +34,7 @@ exports.login = async (req, res) => {
     let data = req.body
     let user = await User.findOne({ email: data.email });
 
-    if (!data.password) return res.status(500).send({ message: 'Password is required' });
+    if (!data.password || data.password == ''|| !data.email || data.email == '') return res.status(500).send({ message: 'Params required' });
     if (user && await compare(data.password, user.password)) {
       // if (user.rol != 'ADMIN' && user.rol != 'WORKER')
       //   return res.status(500).send({ message: `You don't have permissions` })
@@ -57,7 +57,8 @@ exports.login = async (req, res) => {
 exports.register = async (req, res) => {
   try {
     let data = req.body
-    if (!data.password || data.password == '') return res.status(404).send({message: 'Password is required'})
+    if (!data.password || data.password == '' ||!data.name || data.name == '' || !data.surname || data.surname == '' ||
+        !data.email || data.email == '' || !data.phone || data.phone == '') return res.status(404).send({message: 'Password is required'})
     let existUser = await User.findOne({email: data.email}); 
     if(existUser) return res.send({message: 'User Email already exist'})
     data.password = await encrypt(data.password)
