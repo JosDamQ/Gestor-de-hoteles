@@ -6,6 +6,9 @@ const AdditionalServices = require('./additionalServices.model');
 exports.saveAdditionalService= async(req,res)=>{
     try {
         let data = req.body;
+        if(!data.name || data.name == '' || !data.description || data.description == '' || !data.price || data.price == '') return res.status(400).send({message: 'Parmas required'});
+        let serviceExist = await AdditionalServices.findOne({description: data.description, name: data.name})
+        if(serviceExist) return res.status(400).send({message: 'AdditionalServices already exists'});
         let service = new AdditionalServices(data);
         await service.save();
         return res.send({message:'Saved services sucessfully'});
@@ -43,6 +46,7 @@ exports.searchAdditionalServiceByName = async(req, res)=>{
         let params = {
             name: data.name
         }
+        if(!data.name || data.name == '') return res.status(400).send({message: 'Params requerid'})
         let additionalService = await AdditionalServices.find({
             name: {
                 $regex: params.name,
@@ -60,7 +64,8 @@ exports.update = async(req,res)=>{
     try {
         let serviceId = req.params.id;
         let data = req.body;
-        let existService = await AdditionalServices.findOne({name: data.name});
+        if(!data.name || data.name == '' || !data.description || data.description == '' || !data.price || data.price == '') return res.status(400).send({message: 'Params required'});
+        let existService = await AdditionalServices.findOne({name: data.name, description: data.description});
         if(existService){
             if (existService._id != serviceId) return res.send({message:'Service already created'});
             let updatedService = await AdditionalServices.findOneAndUpdate(
