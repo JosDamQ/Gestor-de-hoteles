@@ -15,7 +15,7 @@ exports.saveEventType = async(req, res) =>{
         //Agregamos el tipo de evento
         let newEventType = new EventType(data);
         await newEventType.save();
-        return res.status(201).send({message: 'Hotel saved sucessfully'});
+        return res.status(201).send({message: 'Event saved sucessfully'});
     }catch(err){
         console.error(err);
         return res.status(500).send({message: 'Error saving eventType'});
