@@ -1,6 +1,6 @@
 import React from "react";
 
-export const Card = ({name, address, email, phone, onClick}) => {
+export const Card = ({_id, name, address, email, phone, onClick}) => {
   return (
     <div className="card-wrapper main-card " onClick={onClick}>
       <a className="card cardItemjs">

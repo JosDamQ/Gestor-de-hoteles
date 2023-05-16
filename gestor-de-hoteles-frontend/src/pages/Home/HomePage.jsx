@@ -1,16 +1,27 @@
 import React, { useState, useEffect } from "react";
-import Navbar from "../../components/Navbar";
+import {Navbar} from "../../components/Navbar";
 import "../Home/HomePage.css";
 import { Card } from "../../components/Card";
 import { CardRoom } from "../../components/CardRoom";
+import { CardEvent } from "../../components/cardEvents";
+import { ModalRoom } from '../../components/Modals/ModalRoom'
+
 import axios from 'axios'
 
 export const HomePage = () => {
 
+  // Modal
+  const [showModalRoom, setShowModalRoom] = useState(false);
+  // Funcionalidad de los cards
   const [hotels, setHotels] = useState([{}]);
-  const [rooms, setRooms] = useState([]);
+  const [rooms, setRooms] = useState([{}]);
+  const [events, setEvents] = useState([{}])
+  // Es el hotel seleccionado, si es que hay alguno
   const [selectedHotel, setSelectedHotel] = useState({});
+  // Mensajes que van cambiando
+  const [message2, setMessage2] = useState("");
   const [message, setMessage] = useState()
+  // Funcionalidad barra de busqueda
   const [form, setForm] = useState({
     name: '',
     address: ''
@@ -25,6 +36,25 @@ export const HomePage = () => {
     })
   }
 
+  // Maneja las funciones del navbar
+  const handleNavbarItemClick = (message2) => {
+    if (message2 == 'Hotels'){
+      console.log("Mensaje recibido:", message2);
+      setRooms([]);
+      setEvents([])
+      getHotels();}
+    if( message2 == 'Events'){
+      console.log("Mensaje recibido:", message2);
+      setRooms([]);
+      setHotels([])
+      setSelectedHotel('')
+      getEvents()
+
+
+    }
+  };
+
+  // Llena los card de hoteles
   const getHotels = async () => {
     try {
       const { data } = await axios('http://localhost:2765/Hotel/gets');
@@ -34,6 +64,17 @@ export const HomePage = () => {
     }
   }
 
+  const getEvents = async () => {
+    try{
+      const {data} = await axios('http://localhost:2765/eventType/gets')
+      setEvents(data.eventType)
+      console.log(data)
+    }catch(err){
+      console.error(err)
+    }
+  }
+
+  // Funcionalidad barra de busqueda
   const searchHotelsByNameAndAddress = async () => {
     try {
       setHotels([]);
@@ -46,6 +87,7 @@ export const HomePage = () => {
     }
   }
 
+  // Consigue las habitaciones dependiendo del hotel presionado
   const getRoomByHotel = async (hotelId, hotelName, hotelAddress, hotelEmail, hotelPhone) => {
     try {
       setSelectedHotel({id: hotelId, name: hotelName, address:hotelAddress, email:hotelEmail, Phone:hotelPhone});
@@ -60,7 +102,9 @@ export const HomePage = () => {
 
 
   useEffect(() => {
-    getHotels();
+    getHotels()
+    setEvents([]);
+    setRooms([])
   }, []);
 
   useEffect(() => {
@@ -70,12 +114,13 @@ export const HomePage = () => {
       setMessage('Latest Deals');
     }
   }, [selectedHotel]);
-
-
+  const [showModalHotel, setShowModalHotel] = useState(false)
   return (
     <>
       <div className="app-container">
-        <section className="navigation">
+        <Navbar onNavbarItemClick={handleNavbarItemClick}/>
+        <div>{message2}</div>
+        {/* <section className="navigation">
           <div className="navigation">
             <img
               src="../src/assets/Hotel4All.png"
@@ -137,7 +182,7 @@ export const HomePage = () => {
               />
             </button>
           </div>
-        </section>
+        </section> */}
         <section className="app-actions">
           <div className="app-actions-line">
             <div className="search-wrapper">
@@ -205,7 +250,28 @@ export const HomePage = () => {
           </div>
         </section>
         <section className="app-main">
+          <button onClick={()=> setShowModalRoom(true)} >Mostrar modal</button>
+          <button onClick={()=> setShowModalHotel(true)} >Mostrar hotel</button>
+          {showModalRoom ? <ModalRoom titleModal= {'Agregar'} showModalRoom={showModalRoom} setShowModalRoom={setShowModalRoom}>
+            <p>Hola mundo</p>
+            <button onClick={()=>alert("hola mundo")} >Alerta</button>
+          </ModalRoom> : <></>}
+          {showModalHotel ? <ModalRoom titleModal= {'No agregar'} showModalRoom={showModalHotel} setShowModalRoom={setShowModalHotel}>
+            <p>No agregar hotel</p>
+            <button onClick={()=>alert("hola mundo")} >Alerta</button>
+          </ModalRoom> : <></>}
+        <div>
+                {
+                  selectedHotel.address ? (
+                    <div>
+                      <button onClick={()=>setShowModalRoom(true)}>Agregar Cuarto</button>
+                      <ModalRoom modal={showModalRoom} setModal={setShowModalRoom}></ModalRoom>
+                    </div>
+                  ) : ( <></>)
+                }
+            </div>
           <div className="app-main-left cards-area">
+          
             {
               hotels.map(({ _id, name, address, email, phone }, i) => {
                 return (
@@ -230,19 +296,40 @@ export const HomePage = () => {
                     number={number}
                     price={price}
                     description={description}
+                    onClick={()=> {}}
                   ></CardRoom>
                 );
               })
             }
+            {
+              events.map(({ _id, name, description, price }, i) => {
+                return (
+                  <CardEvent
+                    key={i}
+                    name={name}
+                    description={description}
+                    price={price}
+                  >
+                  </CardEvent>
+                )
+              })
+            }
 
           </div>
+          {
+            //card de hoteles
+          }
           <div className="app-main-right cards-area">
             <div className="app-main-right-header">
-              <spang>{selectedHotel.name || "Latest Deals"}</span>
-              <br></br>
-              <h1>{selectedHotel.address || ""}</h1>
-              <a href="#">See More</a>
+              <div>
+                <span>{selectedHotel.name || "Latest Deals"}</span>
+                <br></br>
+                <h1>{selectedHotel.address || ""}</h1>
+                <a href="#">See More</a>
+              </div>
+              
             </div>
+            
             {
               hotels.map(({ _id, name, address, email, phone }, i) => {
                 return (
@@ -252,7 +339,7 @@ export const HomePage = () => {
                     address={address}
                     email={email}
                     phone={phone}
-                    onClick={() => getRoomByHotel(_id)}
+                    onClick={() => getRoomByHotel(_id, name, address, email, phone)}
                   >
                   </Card>
                 )

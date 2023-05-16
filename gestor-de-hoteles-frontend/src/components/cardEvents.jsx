@@ -1,6 +1,6 @@
 import React from "react";
 
-export const CardRoom = ({name, number, description, price, onClick}) => {
+export const CardEvent = ({name, description, price, onClick}) => {
   return (
     <div className="card-wrapper main-card" onClick={onClick}>
       <a className="card cardItemjs">
@@ -12,10 +12,6 @@ export const CardRoom = ({name, number, description, price, onClick}) => {
         </div>
         <div className="card-info">
           <div className="card-text big cardText-js">{name}</div>
-          <div className="card-text small">
-            Numero de habitacion:
-            <span className="card-price">{number}</span>
-          </div>
           <div className="card-text small">
             descripcion:
             <span className="card-price">{description}</span>
