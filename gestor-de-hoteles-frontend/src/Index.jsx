@@ -10,6 +10,11 @@ export const AuthContext = createContext();
 
 export const Index = () => {
   const [loggedIn, setLoggedIn] = useState(false)
+  const [dataUser, setDataUser] = useState({
+    name: '' ,
+    username: '',
+    rol: ''
+  })
   const routes = createBrowserRouter([
     {
       path: "/",
@@ -19,7 +24,7 @@ export const Index = () => {
         {
           path: "/",
           element: <HomePage></HomePage>,
-            
+
         },
         {
           path: "login",
@@ -34,7 +39,7 @@ export const Index = () => {
   ]);
 
   return (
-        <AuthContext.Provider value={{loggedIn, setLoggedIn}}>
+        <AuthContext.Provider value={{loggedIn, setLoggedIn, dataUser, setDataUser}}>
             <RouterProvider router={routes}></RouterProvider>
         </AuthContext.Provider>
     )
