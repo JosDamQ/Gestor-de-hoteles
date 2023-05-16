@@ -434,7 +434,6 @@ section.app-actions {
     font-weight: 600;
 }
 .app-main-right {
-    position: relative;
     padding-top: 0;
 }
 .app-main-right .card-wrapper {
