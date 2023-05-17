@@ -180,7 +180,7 @@ exports.addWorker = async (req, res) => {
 
 exports.getWorkers = async (req, res) => {
   try {
-    let workers = await User.findOne({ rol: 'WORKER' }, { password: 0 }); // para que no traiga los datos param: 0
+    let workers = await User.find({ rol: 'WORKER' }, { password: 0 }); // para que no traiga los datos param: 0
     return res.status(201).send({ workers })
   } catch (err) {
     console.log(err);

@@ -18,6 +18,7 @@ export const HomePage = () => {
 
   const [workers, setWorkers] = useState([{}]);
 
+
   const [hotelId, setHotelId] = useState();
 
   const [hotels, setHotels] = useState([{}]);
@@ -154,7 +155,7 @@ export const HomePage = () => {
     try {
       const {data} = await axios.get('http://localhost:2765/User/getWorkers', {headers: headers})
       setWorkers(data.workers)
-      console.log(data.workers)
+      console.log(data)
     } catch (err) {
       console.log(err);
     }
@@ -333,7 +334,7 @@ export const HomePage = () => {
               <option value="">Ingresa un usuario</option>
               {
                 workers.map(({_id, name}, i)=>{
-                  return <option key={i} value={_id}> {name} </option>
+                  return (<option key={i} value={_id}> {name} </option>)
                 })
               }
             </select>
