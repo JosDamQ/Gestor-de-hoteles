@@ -1,5 +1,6 @@
 import React, {useState, useContext, useEffect} from 'react'
-import '../RegisterPage/RegisterStyle.css'
+//import '../RegisterPage/RegisterStyle.css'
+import './RegisterStyle.css'
 import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { AuthContext } from '../../Index'
@@ -104,7 +105,7 @@ export const RegisterPage = () => {
 
   return (
     <>
-
+  <div className='mainRegister'>
     <div className="main" >
       <div className="container a-container" id="a-container">
         <form className="form" id="a-form">
@@ -145,6 +146,7 @@ export const RegisterPage = () => {
           <button className="switch__button button switch-btn">SIGN UP</button>
         </div>
       </div>
+    </div>
     </div>
     </>
   )
