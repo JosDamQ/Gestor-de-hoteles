@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import styled from "styled-components";
 
-export const ModalRoom = (showModalRoom, setShowModalRoom) => {
+export const ModalRoom = ({children, titleModal, showModalRoom, setShowModalRoom}) => {
 
   const [form, setForm] = useState({})
 
@@ -18,7 +18,7 @@ export const ModalRoom = (showModalRoom, setShowModalRoom) => {
         {showModalRoom && <Overlay>
         <ContenedorModal>
           <EncabezadoModal>
-            <TituloEncabezado>Agregar animal</TituloEncabezado>
+            <TituloEncabezado>{titleModal}</TituloEncabezado>
           </EncabezadoModal>
           <BotonCerrar onClick={()=>setShowModalRoom(false)}>
             <svg
@@ -32,15 +32,8 @@ export const ModalRoom = (showModalRoom, setShowModalRoom) => {
               <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
             </svg>
           </BotonCerrar>
-          <FormAddAnimal onSubmit={(e)=> e.preventDefault()}>
-            <Input type='text' placeholder='Nombre' name='name' onChange={handleChange} required/>
-            <Input type='text' placeholder='Descripción' name='description' onChange={handleChange} required/>
-            <Input type='number' min={'1'} placeholder='Edad' name='age' onChange={handleChange} required/>
-            <Input type='text' placeholder='Tipo de animal' name='type' onChange={handleChange} required/>
-            <User onChange={handleChange} name='user' required>
-              <option value="">Ingresa un usuario</option>
-            </User>
-            <AddBoton type='submit' value='Agregar'/>
+          <FormAddAnimal>
+            {children}
           </FormAddAnimal>
         </ContenedorModal>
       </Overlay>}
@@ -50,6 +43,7 @@ export const ModalRoom = (showModalRoom, setShowModalRoom) => {
 
 const FormAddAnimal = styled.form`
   text-align: center;
+  z-index: 304;
 `
 const Input = styled.input`
   margin-bottom: 10px;
@@ -93,16 +87,13 @@ const AddBoton = styled.input`
 `
 
 const Overlay = styled.div`
-  width: 100%;
-  height: 100vh;
-  position: absolute;
-  top: 0;
-  left: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 40px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #fff;
+  padding: 20px;
+  z-index: 9999;
 `;
 
 const ContenedorModal = styled.div`

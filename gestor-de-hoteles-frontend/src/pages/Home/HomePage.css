@@ -322,6 +322,7 @@ section.app-actions {
     overflow: hidden;
     padding: 24px 40px;
     display: flex;
+    gap: 24px;
     justify-content: space-between;
 }
 .cards-area {
@@ -332,13 +333,13 @@ section.app-actions {
     border-radius: 20px;
 }
 .app-main-left {
-    flex: 4;
     display: flex;
+    flex: 4;
+    gap: 24px;
     flex-wrap: wrap;
 }
 .app-main-right {
     flex: 2;
-    margin-left: 24px;
     max-width: 400px;
 }
 .app-main-right .card-image-wrapper {
@@ -356,6 +357,8 @@ section.app-actions {
     width: 33.3%;
     height: auto;
     padding: 8px;
+    flex: 1;
+    min-width: 300px;
 }
 .card {
     background-color: var(--cards-bg);
@@ -431,7 +434,6 @@ section.app-actions {
     font-weight: 600;
 }
 .app-main-right {
-    position: relative;
     padding-top: 0;
 }
 .app-main-right .card-wrapper {
@@ -715,10 +717,14 @@ section.app-actions {
         font-size: 14px;
    }
 }
+
 @media screen and (max-width: 990px) {
-    .app-main-right {
-        display: none;
-   }
+    .app-main{
+        flex-direction: column;
+    }
+    .app-main-right{
+        max-width: 100vw;
+    }    
 }
 @media screen and (max-width: 780px) {
     .filter-line-text {
@@ -748,13 +754,16 @@ section.app-actions {
         width: 100%;
    }
     .cards-area {
-        padding: 0 8px;
+        padding: 10px 15px;
    }
     .navigation {
         padding: 24px;
    }
     .app-main, .app-actions {
         padding: 24px;
+   }
+   .app-main-right, .app-main{
+    padding-top: 0;
    }
     section.app-actions {
         padding: 0 24px;
@@ -789,11 +798,6 @@ section.app-actions {
         top: 0;
    }
 }
-@media screen and (max-width: 660px) {
-    .navigation-links {
-        display: none;
-   }
-}
 @media screen and (max-width: 520px) {
     .app-container {
         overflow: auto;
@@ -813,4 +817,60 @@ section.app-actions {
     .contact-actions span {
         display: none;
    }
+}
+
+.button1{
+    display:inline-block;
+    padding:0.35em 1.2em;
+    border:0.1em solid #7ED957;
+    margin:0 0.3em 0.3em 0;
+    border-radius:0.12em;
+    box-sizing: border-box;
+    text-decoration:none;
+    font-family:'Roboto',sans-serif;
+    font-weight:300;
+    background-color: #7ED957;
+    text-align:center;
+    transition: all 0.2s;
+    border-radius: 5px;
+}
+
+.button1:hover{
+    color:#000000;
+    background-color:#FFFFFF;
+}
+
+@media all and (max-width:30em){
+    .button1{
+        display:block;
+        margin:0.4em auto;
+    }
+}
+
+.botonAdd {
+    font-size: 18px;
+    width: 50%;
+    padding: 10px;
+    outline: none;
+    border: 1px solid #9b9b9b;
+    color: #3e4144;
+    background: none;
+    border-radius: 5px;
+    background-color: #7ED957;
+}
+
+.inputModal {
+    margin-bottom: 10px;
+    font-size: 18px;
+    width: 100%;
+    padding: 10px;
+    outline: none;
+    border: 1px solid #9b9b9b;
+    color: #3e4144;
+    
+    border: 1px solid #393939;
+    border-radius: 5px 5px 5px 5px;
+    color: #393939;
+    font-size: 12px;
+    padding: 5px;
 }

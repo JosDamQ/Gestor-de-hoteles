@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Navbar from "../../components/Navbar";
+import {Navbar} from "../../components/Navbar";
 import "../Home/HomePage.css";
 import { Card } from "../../components/Card";
 import { CardRoom } from "../../components/CardRoom";
@@ -9,6 +9,17 @@ import axios from 'axios'
 export const HomePage = () => {
 
   const [showModalRoom, setShowModalRoom] = useState(false);
+  const [showModalHotel, setShowModalHotel] = useState(false)
+  const [showModalMeals, setShowModalMeals] = useState(false)
+  const [showModalEventType, setShowModalEventType] = useState(false)
+  const [showModalReservation, setShowModalReservation] = useState(false)
+  const [showModalReservationEvent, setShowModalReservationEvent] = useState(false)
+  const [showModalUser, setShowModalUser] = useState(false)
+
+  const [workers, setWorkers] = useState([{}]);
+
+  const [hotelId, setHotelId] = useState();
+
   const [hotels, setHotels] = useState([{}]);
   const [rooms, setRooms] = useState([]);
   const [selectedHotel, setSelectedHotel] = useState({});
@@ -18,14 +29,105 @@ export const HomePage = () => {
     address: ''
   })
 
-
-
   const handleChange = (e) => {
     setForm({
       ...form,
       [e.target.name]: e.target.value
     })
   }
+
+  const headers = {
+    'Content-Types': 'aplication/json',
+    'Authorization': localStorage.getItem('token')
+  }
+
+  //hotel
+  const [formHotel, setFormHotel] = useState({
+    name: '',
+    address: '',
+    admin: '',
+    contact: '',
+    email: '',
+    phone: '',
+    eventAvailability: ''
+  })
+
+  const handleChangeHotel = (e) => {
+    setFormHotel({
+      ...formHotel,
+      [e.target.name]: e.target.value
+    })
+  }
+
+  //cuarto
+  const [formRoom, setFormRoom] = useState({
+    name: '',
+    number: '',
+    hotel: hotelId,
+    description: '',
+    price: ''
+  })
+
+  const handleChangeRoom = (e) => {
+    setFormRoom({
+      ...formRoom,
+      [e.target.name]: e.target.value
+    })
+  }
+
+  //comidas
+  const [formMeals, setFormMeals] = useState({
+    name: '',
+    description: '',
+    price: ''
+  })
+
+  const handleChangeMeals = (e) => {
+    setFormMeals({
+      ...formMeals,
+      [e.target.name]: e.target.value
+    })
+  }
+
+  //tipo de evento
+  const [formEventType, setFormEventType] = useState({
+    name: '',
+    description: '',
+    price: ''
+  })
+
+  const handleChangeEventType = (e) => {
+    setFormEventType({
+      ...formEventType,
+      [e.target.name]: e.target.value
+    })
+  }
+
+  //reservation
+  const [formReservation, setFormReservation] = useState({
+
+  })
+
+  const handleChangeReservation = (e) => {
+    setFormReservation({
+      ...formReservation,
+      [e.target.name]: e.target.value
+    })
+  }
+
+  //reservation event
+  const [formEventReservation, setFormEventReservation] = useState({
+
+  })
+  
+
+  const handleChangeEventReservation = (e) => {
+    setFormEventReservation({
+      ...formEventReservation,
+      [e.target.name]: e.target.value
+    })
+  }
+
 
   const getHotels = async () => {
     try {
@@ -48,6 +150,18 @@ export const HomePage = () => {
     }
   }
 
+  const getWorkers = async()=>{
+    try {
+      const {data} = await axios.get('http://localhost:2765/User/getWorkers', {headers: headers})
+      setWorkers(data.workers)
+      console.log(data.workers)
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  useEffect(()=>getWorkers, []);
+  
   const getRoomByHotel = async (hotelId, hotelName, hotelAddress, hotelEmail, hotelPhone) => {
     try {
       setSelectedHotel({id: hotelId, name: hotelName, address:hotelAddress, email:hotelEmail, Phone:hotelPhone});
@@ -59,11 +173,47 @@ export const HomePage = () => {
       console.error(err)
     }
   }
+  
+  const addHotel = async()=>{
+    try {
+      const { data } = await axios.post('http://localhost:2765/Hotel/add', formHotel, {headers: headers})
+      setFormHotel({})
+    } catch (err) {
+      console.error(err);
+      
+    }
+  }
+
+  const addRoom = async()=>{
+    try {
+      const { data } = await axios.post('http://localhost:2765/Room/save', formRoom, {headers: headers})
+      setFormRoom({})
+      setHotelId()
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  const addMeals = async()=>{
+    try {
+      const { data } = await axios.post('http://localhost:2765/AdditionalMeal/save', formMeals, {headers: headers})
+      setFormMeals({})
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  const addTypeEvent = async()=>{
+    try {
+      const { data } = await axios.post('http://localhost:2765/AdditionalMeal/save', formEventType, {headers: headers})
+      setFormEventType({})
+    } catch (err) {
+      console.error(err);
+    }
+  }
 
 
-  useEffect(() => {
-    getHotels();
-  }, []);
+  useEffect(()=> getHotels, []);
 
   useEffect(() => {
     if (selectedHotel.name) {
@@ -73,73 +223,14 @@ export const HomePage = () => {
     }
   }, [selectedHotel]);
 
-
+  
   return (
     <>
       <div className="app-container">
-        <section className="navigation">
-          <div className="navigation">
-            <img
-              src="../src/assets/Hotel4All.png"
-              style={{ width: "70px" }}
-              alt="Logo"
-            />
-            <a href="#" className="app-link">
-              Hotel 4 All
-            </a>
-          </div>
-
-          <div className="navigation-links">
-            <a href="#" className="nav-link ">
-              Destinations
-            </a>
-            <a href="#" className="nav-link active">
-              Hotels
-            </a>
-            <a href="#" className="nav-link">
-              Camping
-            </a>
-            <a href="#" className="nav-link">
-              Car Rent
-            </a>
-          </div>
-          <div className="nav-right-side">
-            <button className="mode-switch">
-              <svg
-                className="sun feather feather-sun"
-                fill="none"
-                stroke="#fbb046"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-              >
-                <defs />
-                <circle cx="12" cy="12" r="5" />
-                <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
-              </svg>
-              <svg
-                className="moon feather feather-moon"
-                fill="none"
-                stroke="#ffffff"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-              >
-                <defs />
-                <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
-              </svg>
-            </button>
-            <button className="profile-btn">
-              <span>Su usuario</span>
-              <img
-                src="https://images.unsplash.com/photo-1492633397843-92adffad3d1c?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2167&q=80"
-                alt="pp"
-              />
-            </button>
-          </div>
-        </section>
+        <Navbar></Navbar>
+        {
+          //---------------------------------
+        }
         <section className="app-actions">
           <div className="app-actions-line">
             <div className="search-wrapper">
@@ -206,19 +297,96 @@ export const HomePage = () => {
             </div>
           </div>
         </section>
-        <section className="app-main">
 
         <div>
-                {
-                  selectedHotel.address ? (
-                    <div>
-                      <button onClick={()=>setShowModalRoom(true)}>Agregar Cuarto</button>
-                      <ModalRoom modal={showModalRoom} setModal={setShowModalRoom}></ModalRoom>
-                    </div>
-                  ) : ( <></>)
-                }
-            </div>
+          
+          <button className="button1" onClick={()=> setShowModalHotel(true)} >Agregar hotel</button>
+          <button className="button1" onClick={()=> setShowModalMeals(true)} >Mostrar comida</button>
+          <button className="button1" onClick={()=> setShowModalEventType(true)} >Mostrar eventos</button>
+          <button className="button1" onClick={()=> setShowModalReservation(true)} >Mostrar reservaicon</button>
+          <button className="button1" onClick={()=> setShowModalReservationEvent(true)} >Mostrar reservacion de evento</button>
+        </div>
+
+        <section className="app-main">
+          
+
+          {
+            //Mostrar modal de Cuarto
+          }
+          {showModalRoom ? <ModalRoom titleModal= {'Agregar Cuarto'} showModalRoom={showModalRoom} setShowModalRoom={setShowModalRoom}>
+            
+            <input className="inputModal" type='text' placeholder='Nombre' name='name' onChange={handleChangeRoom} required />
+            <input className="inputModal" type='number' placeholder='Numero de cuarto' name='number' onChange={handleChangeRoom} required />
+            <input className="inputModal" type='text' placeholder='Descripcion' name='description' onChange={handleChangeRoom} required />
+            <input className="inputModal" type='number' placeholder='Precio' name='price' onChange={handleChangeRoom} required />
+            <button className="botonAdd" onClick={addRoom} >Agregar Cuarto</button>
+          </ModalRoom> : <></>}
+
+          
+          {
+            //Mostrar modal de hotel
+          }
+          {showModalHotel ? <ModalRoom titleModal= {'Agregar Hotel'} showModalRoom={showModalHotel} setShowModalRoom={setShowModalHotel}>
+            <input className="inputModal" type='text' placeholder='Nombre' name='name' onChange={handleChangeHotel} required />
+            <input className="inputModal" type='text' placeholder='Direccion' name='address' onChange={handleChangeHotel} required />
+            <select className="inputModal" onChange={handleChangeHotel} name="admin" required>
+              <option value="">Ingresa un usuario</option>
+              {
+                workers.map(({_id, name}, i)=>{
+                  return <option key={i} value={_id}> {name} </option>
+                })
+              }
+            </select>
+            <input className="inputModal" type='number' placeholder='Contacto' name='contact' onChange={handleChangeHotel} required />
+            <input className="inputModal" type='text' placeholder='Email' name='email' onChange={handleChangeHotel} required />
+            <input className="inputModal" type='number' placeholder='Telefono' name='phone' onChange={handleChangeHotel} required />
+            <input className="inputModal" type='text' placeholder='Disponibilida de eventos' name='eventAvailability' onChange={handleChangeHotel} required />
+            <button className="botonAdd" onClick={(e)=>{addHotel(), (e).preventDefault(e)}} >Agregar Hotel</button>
+          </ModalRoom> : <></>}
+
+          {
+            //Mostrar modal de Comida extra
+          }
+          {showModalMeals ? <ModalRoom titleModal= {'Agregar Comida'} showModalRoom={showModalMeals} setShowModalRoom={setShowModalMeals}>
+          <input className="inputModal" type='text' placeholder='Nombre' name='name' onChange={handleChangeMeals} required />
+            <input className="inputModal" type='text' placeholder='Descripcion' name='description' onChange={handleChangeMeals} required />
+            <input className="inputModal" type='number' placeholder='Precio' name='price' onChange={handleChangeMeals} required />
+            <button className="botonAdd" onClick={addMeals} >Alerta</button>
+          </ModalRoom> : <></>}
+
+          {
+            //Mostrar modal de tipo de evento
+          }
+          {showModalEventType ? <ModalRoom titleModal= {'Agregar Tipo de evento'} showModalRoom={showModalEventType} setShowModalRoom={setShowModalEventType}>
+            <input className="inputModal" type='text' placeholder='Nombre' name='name' onChange={handleChangeEventType} required />
+            <input className="inputModal" type='text' placeholder='Descripcion' name='description' onChange={handleChangeEventType} required />
+            <input className="inputModal" type='number' placeholder='Precio' name='price' onChange={handleChangeEventType} required />
+            <button className="botonAdd" onClick={addTypeEvent} >Agregar tipo de evento</button>
+          </ModalRoom> : <></>}
+
+          {
+            //Mostrar modal de reservacion de cuarto
+          }
+          {showModalReservation ? <ModalRoom titleModal= {'Agregar Reservacion de cuarto'} showModalRoom={showModalReservation} setShowModalRoom={setShowModalReservation}>
+            <p>No agregar hotel</p>
+            <button onClick={()=>alert("hola mundo")} >Alerta</button>
+          </ModalRoom> : <></>}
+
+          {
+            //Mostrar modal de reservacion de evento
+          }
+          {showModalReservationEvent ? <ModalRoom titleModal= {'Agregar Reservacion de evento'} showModalRoom={showModalReservationEvent} setShowModalRoom={setShowModalReservationEvent}>
+            <p>No agregar hotel</p>
+            <button onClick={()=>alert("hola mundo")} >Alerta</button>
+          </ModalRoom> : <></>}
+
+          {
+            //Mostrar modal de Usuario
+          }
+
+
           <div className="app-main-left cards-area">
+          
             {
               hotels.map(({ _id, name, address, email, phone }, i) => {
                 return (
@@ -228,7 +396,7 @@ export const HomePage = () => {
                     address={address}
                     email={email}
                     phone={phone}
-                    onClick={() => {getRoomByHotel(_id, name, address, email, phone) }}
+                    onClick={() => {getRoomByHotel(_id, name, address, email, phone), setHotelId(_id) }}
                   >
                   </Card>
                 )
@@ -261,10 +429,16 @@ export const HomePage = () => {
                 <h1>{selectedHotel.address || ""}</h1>
                 <a href="#">See More</a>
               </div>
-              
-              
-              
+              {selectedHotel.address ? (
+                <div>
+                  <button className="button1" onClick={()=> setShowModalRoom(true)} >Agregar cuarto</button>
+                  <button className="button1" onClick={()=> setShowModalRoom(true)} >Editar Hotel</button>
+                </div>
+              ) : <></>
+                
+              }
             </div>
+            
             {
               hotels.map(({ _id, name, address, email, phone }, i) => {
                 return (
