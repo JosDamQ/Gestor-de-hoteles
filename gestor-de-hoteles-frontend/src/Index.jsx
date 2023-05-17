@@ -5,11 +5,14 @@ import { NotFoundPage } from "./pages/NotFoundPage";
 import { HomePage } from "./pages/Home/HomePage";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage/RegisterPage";
+//import { infoUser } from "./pages/InfoUserPage/infoUser";
+//import { infoUser } from "./pages/InfoUserPage/infoUser"
+import { InfoUserPage } from "./pages/InfoUserPage/InfoUserPage";
 
 export const AuthContext = createContext();
 
 export const Index = () => {
-  const [loggedIn, setLoggedIn] = useState(false)
+  const [loggedIn, setLoggedIn] = useState(false);
   const [dataUser, setDataUser] = useState({
     name: '' ,
     username: '',
@@ -24,23 +27,30 @@ export const Index = () => {
         {
           path: "/",
           element: <HomePage></HomePage>,
-
         },
         {
           path: "login",
-          element: <LoginPage></LoginPage>
+          element: <LoginPage></LoginPage>,
         },
         {
           path: "register",
-          element: <RegisterPage></RegisterPage>
+          element: <RegisterPage></RegisterPage>,
+        },
+        // {
+        //   path: "reservation",
+        //   element: <infoUser></infoUser>,
+        // }
+        {
+          path: "infoUser",
+          element: <InfoUserPage></InfoUserPage>,
         }
-      ]
+      ],
     },
   ]);
 
   return (
-        <AuthContext.Provider value={{loggedIn, setLoggedIn, dataUser, setDataUser}}>
-            <RouterProvider router={routes}></RouterProvider>
-        </AuthContext.Provider>
-    )
+    <AuthContext.Provider value={{ loggedIn, setLoggedIn, dataUser, setDataUser  }}>
+      <RouterProvider router={routes}></RouterProvider>
+    </AuthContext.Provider>
+  );
 };
