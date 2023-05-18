@@ -3,25 +3,16 @@ import {Navbar} from "../../components/Navbar";
 import "../Home/HomePage.css";
 import { Card } from "../../components/Card";
 import { CardRoom } from "../../components/CardRoom";
-import { CardEvent } from "../../components/cardEvents";
 import { ModalRoom } from '../../components/Modals/ModalRoom'
-
 import axios from 'axios'
 
 export const HomePage = () => {
 
-  // Modal
   const [showModalRoom, setShowModalRoom] = useState(false);
-  // Funcionalidad de los cards
   const [hotels, setHotels] = useState([{}]);
-  const [rooms, setRooms] = useState([{}]);
-  const [events, setEvents] = useState([{}])
-  // Es el hotel seleccionado, si es que hay alguno
+  const [rooms, setRooms] = useState([]);
   const [selectedHotel, setSelectedHotel] = useState({});
-  // Mensajes que van cambiando
-  const [message2, setMessage2] = useState("");
   const [message, setMessage] = useState()
-  // Funcionalidad barra de busqueda
   const [form, setForm] = useState({
     name: '',
     address: ''
@@ -36,25 +27,6 @@ export const HomePage = () => {
     })
   }
 
-  // Maneja las funciones del navbar
-  const handleNavbarItemClick = (message2) => {
-    if (message2 == 'Hotels'){
-      console.log("Mensaje recibido:", message2);
-      setRooms([]);
-      setEvents([])
-      getHotels();}
-    if( message2 == 'Events'){
-      console.log("Mensaje recibido:", message2);
-      setRooms([]);
-      setHotels([])
-      setSelectedHotel('')
-      getEvents()
-
-
-    }
-  };
-
-  // Llena los card de hoteles
   const getHotels = async () => {
     try {
       const { data } = await axios('http://localhost:2765/Hotel/gets');
@@ -64,17 +36,6 @@ export const HomePage = () => {
     }
   }
 
-  const getEvents = async () => {
-    try{
-      const {data} = await axios('http://localhost:2765/eventType/gets')
-      setEvents(data.eventType)
-      console.log(data)
-    }catch(err){
-      console.error(err)
-    }
-  }
-
-  // Funcionalidad barra de busqueda
   const searchHotelsByNameAndAddress = async () => {
     try {
       setHotels([]);
@@ -87,7 +48,6 @@ export const HomePage = () => {
     }
   }
 
-  // Consigue las habitaciones dependiendo del hotel presionado
   const getRoomByHotel = async (hotelId, hotelName, hotelAddress, hotelEmail, hotelPhone) => {
     try {
       setSelectedHotel({id: hotelId, name: hotelName, address:hotelAddress, email:hotelEmail, Phone:hotelPhone});
@@ -102,9 +62,7 @@ export const HomePage = () => {
 
 
   useEffect(() => {
-    getHotels()
-    setEvents([]);
-    setRooms([])
+    getHotels();
   }, []);
 
   useEffect(() => {
@@ -118,8 +76,7 @@ export const HomePage = () => {
   return (
     <>
       <div className="app-container">
-        <Navbar onNavbarItemClick={handleNavbarItemClick}/>
-        <div>{message2}</div>
+        <Navbar></Navbar>
         {/* <section className="navigation">
           <div className="navigation">
             <img
@@ -301,19 +258,6 @@ export const HomePage = () => {
                 );
               })
             }
-            {
-              events.map(({ _id, name, description, price }, i) => {
-                return (
-                  <CardEvent
-                    key={i}
-                    name={name}
-                    description={description}
-                    price={price}
-                  >
-                  </CardEvent>
-                )
-              })
-            }
 
           </div>
           {
@@ -339,7 +283,7 @@ export const HomePage = () => {
                     address={address}
                     email={email}
                     phone={phone}
-                    onClick={() => getRoomByHotel(_id, name, address, email, phone)}
+                    onClick={() => getRoomByHotel(_id)}
                   >
                   </Card>
                 )

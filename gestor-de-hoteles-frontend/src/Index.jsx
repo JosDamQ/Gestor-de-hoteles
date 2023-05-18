@@ -4,20 +4,12 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { HomePage } from "./pages/Home/HomePage";
 import { LoginPage } from "./pages/LoginPage";
-import { RegisterPage } from "./pages/RegisterPage/RegisterPage";
-//import { infoUser } from "./pages/InfoUserPage/infoUser";
-//import { infoUser } from "./pages/InfoUserPage/infoUser"
-import { InfoUserPage } from "./pages/InfoUserPage/InfoUserPage";
+import { RegisterPage } from "./pages/RegisterPage";
 
 export const AuthContext = createContext();
 
 export const Index = () => {
   const [loggedIn, setLoggedIn] = useState(false);
-  const [dataUser, setDataUser] = useState({
-    name: '' ,
-    username: '',
-    rol: ''
-  })
   const routes = createBrowserRouter([
     {
       path: "/",
@@ -36,20 +28,12 @@ export const Index = () => {
           path: "register",
           element: <RegisterPage></RegisterPage>,
         },
-        // {
-        //   path: "reservation",
-        //   element: <infoUser></infoUser>,
-        // }
-        {
-          path: "infoUser",
-          element: <InfoUserPage></InfoUserPage>,
-        }
       ],
     },
   ]);
 
   return (
-    <AuthContext.Provider value={{ loggedIn, setLoggedIn, dataUser, setDataUser  }}>
+    <AuthContext.Provider value={{ loggedIn, setLoggedIn }}>
       <RouterProvider router={routes}></RouterProvider>
     </AuthContext.Provider>
   );

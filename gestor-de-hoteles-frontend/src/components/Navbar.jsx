@@ -5,14 +5,7 @@ import { AuthContext } from "../Index";
 import "./Navbar.css";
 import { Link, useNavigate } from "react-router-dom";
 
-export const Navbar = ({ onNavbarItemClick }) => {
-  
-    const handleNavbarItemClick = (message2) => {
-      if (onNavbarItemClick) {
-        onNavbarItemClick(message2);
-      }
-    };
-
+export const Navbar = () => {
   return (
     <section className="navigation">
       <div className="navigation">
@@ -28,14 +21,17 @@ export const Navbar = ({ onNavbarItemClick }) => {
       <input id="buttonList" type="checkbox"/>
       
       <div className="navigation-links">
-        <a href="#" className="nav-link active" onClick={() => handleNavbarItemClick("Events")}>
-          Event
+        <a href="#" className="nav-link">
+          Destinations
         </a>
-        <a href="#" className="nav-link active" onClick={() => handleNavbarItemClick("Hotels")}>
+        <a href="#" className="nav-link active">
           Hotels
         </a>
-        <a href="#" className="nav-link active" onClick={() => handleNavbarItemClick("Stats")}>
-          Estadisticas
+        <a href="#" className="nav-link">
+          Camping
+        </a>
+        <a href="#" className="nav-link">
+          Car Rent
         </a>
       </div>
       <div className="nav-right-side">
