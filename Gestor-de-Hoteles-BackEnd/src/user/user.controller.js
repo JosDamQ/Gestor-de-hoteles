@@ -233,27 +233,32 @@ exports.updatePasswordWorker = async (req, res) => {
 
 exports.updateWorker = async (req, res) => {
   try {
-    let workerId = req.params.id
+    let workerId = req.params.id;
     let params = {
       name: req.body.name,
       surname: req.body.surname,
       email: req.body.email,
       phone: req.body.phone
-    }
-    if(!req.body.password) return res.status(400).send({message: 'Invalid password'})
-    let msg = validateData(params)
-    let user = await User.findOne({_id: workerId, rol: 'WORKER'});
-    if(!user) return res.status(404).send({message: 'Worker not found or invalid rol'});
+    };
+
+    if (!req.body.password) return res.status(400).send({ message: 'Invalid password' });
+    let msg = validateData(params);
+    let user = await User.findOne({ _id: workerId, rol: 'WORKER' });
+
+    if (!user) return res.status(404).send({ message: 'Worker not found or invalid rol' });
+    if (user.rol !== 'ADMIN') return res.status(403).send({ message: 'Only admins can update workers' });
+
     if (msg) return res.status(400).send({ msg });
-    if(compare(await req.body.password, user.password)){
-      await User.findOneAndUpdate({ _id: workerId, rol: 'WORKER' }, params, { new: true })
-      return res.status(201).send({message: 'Worker Updated succesfully' })
+    if (compare(await req.body.password, user.password)) {
+      await User.findOneAndUpdate({ _id: workerId, rol: 'WORKER' }, params, { new: true });
+      return res.status(201).send({ message: 'Worker Updated succesfully' });
     }
-    return res.send({message: 'Invalid password'})
+    return res.send({ message: 'Invalid password' });
   } catch (err) {
     console.log(err);
   }
-}
+};
+
 
 exports.deleteUser = async(req, res) =>{
   try {
