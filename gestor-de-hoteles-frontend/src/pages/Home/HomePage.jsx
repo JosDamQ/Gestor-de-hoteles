@@ -1,14 +1,132 @@
-import React from "react";
-import Navbar from "../../components/Navbar";
+import React, { useState, useEffect } from "react";
+import {Navbar} from "../../components/Navbar";
 import "../Home/HomePage.css";
+import { Card } from "../../components/Card";
+import { CardRoom } from "../../components/CardRoom";
+import { CardEvent } from "../../components/cardEvents";
+import { ModalRoom } from '../../components/Modals/ModalRoom'
+
+import axios from 'axios'
 
 export const HomePage = () => {
+
+  // Modal
+  const [showModalRoom, setShowModalRoom] = useState(false);
+  // Funcionalidad de los cards
+  const [hotels, setHotels] = useState([{}]);
+  const [rooms, setRooms] = useState([{}]);
+  const [events, setEvents] = useState([{}])
+  // Es el hotel seleccionado, si es que hay alguno
+  const [selectedHotel, setSelectedHotel] = useState({});
+  // Mensajes que van cambiando
+  const [message2, setMessage2] = useState("");
+  const [message, setMessage] = useState()
+  // Funcionalidad barra de busqueda
+  const [form, setForm] = useState({
+    name: '',
+    address: ''
+  })
+
+
+
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value
+    })
+  }
+
+  // Maneja las funciones del navbar
+  const handleNavbarItemClick = (message2) => {
+    if (message2 == 'Hotels'){
+      console.log("Mensaje recibido:", message2);
+      setRooms([]);
+      setEvents([])
+      getHotels();}
+    if( message2 == 'Events'){
+      console.log("Mensaje recibido:", message2);
+      setRooms([]);
+      setHotels([])
+      setSelectedHotel('')
+      getEvents()
+
+
+    }
+  };
+
+  // Llena los card de hoteles
+  const getHotels = async () => {
+    try {
+      const { data } = await axios('http://localhost:2765/Hotel/gets');
+      setHotels(data.hotels);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  const getEvents = async () => {
+    try{
+      const {data} = await axios('http://localhost:2765/eventType/gets')
+      setEvents(data.eventType)
+      console.log(data)
+    }catch(err){
+      console.error(err)
+    }
+  }
+
+  // Funcionalidad barra de busqueda
+  const searchHotelsByNameAndAddress = async () => {
+    try {
+      setHotels([]);
+      setRooms([]);
+      const { data } = await axios.post('http://localhost:2765/Hotel/searchByNameAndAddress', form);
+      if (!data) getHotels();
+      setHotels(data.hotels);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  // Consigue las habitaciones dependiendo del hotel presionado
+  const getRoomByHotel = async (hotelId, hotelName, hotelAddress, hotelEmail, hotelPhone) => {
+    try {
+      setSelectedHotel({id: hotelId, name: hotelName, address:hotelAddress, email:hotelEmail, Phone:hotelPhone});
+      setHotels([]);
+      setRooms([]);
+      const { data } = await axios.get(`http://localhost:2765/Room/getsByHotel/${hotelId}`);
+      setRooms(data.rooms);
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+
+  useEffect(() => {
+    getHotels()
+    setEvents([]);
+    setRooms([])
+  }, []);
+
+  useEffect(() => {
+    if (selectedHotel.name) {
+      setMessage(`Selected Hotel: ${selectedHotel.name}`);
+    } else {
+      setMessage('Latest Deals');
+    }
+  }, [selectedHotel]);
+  const [showModalHotel, setShowModalHotel] = useState(false)
   return (
     <>
       <div className="app-container">
-        <section className="navigation">
+        <Navbar onNavbarItemClick={handleNavbarItemClick}/>
+        <div>{message2}</div>
+        {/* <section className="navigation">
           <div className="navigation">
-            <img src="../src/assets/Hotel4All.png" alt="Logo" />
+            <img
+              src="../src/assets/Hotel4All.png"
+              style={{ width: "70px" }}
+              alt="Logo"
+            />
             <a href="#" className="app-link">
               Hotel 4 All
             </a>
@@ -64,7 +182,7 @@ export const HomePage = () => {
               />
             </button>
           </div>
-        </section>
+        </section> */}
         <section className="app-actions">
           <div className="app-actions-line">
             <div className="search-wrapper">
@@ -86,14 +204,16 @@ export const HomePage = () => {
               <input
                 type="text"
                 className="search-input"
+                onChange={handleChange} name='address'
                 placeholder="¿En que zona desea Buscar?"
               />
               <input
                 type="text"
                 className="search-input"
+                onChange={handleChange} name='name'
                 placeholder="¿Ya sabes en que hotel?"
               />
-              <button className="search-btn">Find Hotel</button>
+              <button onClick={searchHotelsByNameAndAddress} className="search-btn">Find Hotel</button>
             </div>
             <div className="contact-actions-wrapper">
               <div className="contact-actions">
@@ -130,600 +250,105 @@ export const HomePage = () => {
           </div>
         </section>
         <section className="app-main">
+          <button onClick={()=> setShowModalRoom(true)} >Mostrar modal</button>
+          <button onClick={()=> setShowModalHotel(true)} >Mostrar hotel</button>
+          {showModalRoom ? <ModalRoom titleModal= {'Agregar'} showModalRoom={showModalRoom} setShowModalRoom={setShowModalRoom}>
+            <p>Hola mundo</p>
+            <button onClick={()=>alert("hola mundo")} >Alerta</button>
+          </ModalRoom> : <></>}
+          {showModalHotel ? <ModalRoom titleModal= {'No agregar'} showModalRoom={showModalHotel} setShowModalRoom={setShowModalHotel}>
+            <p>No agregar hotel</p>
+            <button onClick={()=>alert("hola mundo")} >Alerta</button>
+          </ModalRoom> : <></>}
+        <div>
+                {
+                  selectedHotel.address ? (
+                    <div>
+                      <button onClick={()=>setShowModalRoom(true)}>Agregar Cuarto</button>
+                      <ModalRoom modal={showModalRoom} setModal={setShowModalRoom}></ModalRoom>
+                    </div>
+                  ) : ( <></>)
+                }
+            </div>
           <div className="app-main-left cards-area">
-            <div className="card-wrapper main-card">
-              <a className="card cardItemjs">
-                <div className="card-image-wrapper">
-                  <img
-                    src="https://source.unsplash.com/featured/1200x900/?sculpture,hotel"
-                    alt="Hotel"
-                  />
-                </div>
-                <div className="card-info">
-                  <div className="card-text big cardText-js">
-                    Nombre del Hotel
-                  </div>
-                  <div className="card-text small">Lugar</div>
-                  <div className="card-text small">
-                    Starts from:
-                    <span className="card-price">Precio</span>
-                  </div>
-                </div>
-              </a>
-            </div>
-            <div className="card-wrapper main-card">
-              <a className="card cardItemjs">
-                <div className="card-image-wrapper">
-                  <img
-                    src="https://source.unsplash.com/featured/1200x900/?architecture,hotel"
-                    alt="Hotel"
-                  />
-                </div>
-                <div className="card-info">
-                  <div className="card-text big cardText-js">
-                    Nombre del Hotel
-                  </div>
-                  <div className="card-text small">Lugar</div>
-                  <div className="card-text small">
-                    Starts from:
-                    <span className="card-price">Precio</span>
-                  </div>
-                </div>
-              </a>
-            </div>
-            <div className="card-wrapper main-card">
-              <a className="card cardItemjs">
-                <div className="card-image-wrapper">
-                  <img
-                    src="https://source.unsplash.com/featured/1200x900/?hotel-room,hotel"
-                    alt="Hotel"
-                  />
-                </div>
-                <div className="card-info">
-                  <div className="card-text big cardText-js">
-                    Nombre del Hotel
-                  </div>
-                  <div className="card-text small">Lugar</div>
-                  <div className="card-text small">
-                    Starts from:
-                    <span className="card-price">Precio</span>
-                  </div>
-                </div>
-              </a>
-            </div>
-            <div className="card-wrapper main-card">
-              <a className="card cardItemjs">
-                <div className="card-image-wrapper">
-                  <img
-                    src="https://source.unsplash.com/featured/1200x900/?hotel,design"
-                    alt="Hotel"
-                  />
-                </div>
-                <div className="card-info">
-                  <div className="card-text big cardText-js">
-                    Nombre del Hotel
-                  </div>
-                  <div className="card-text small">Lugar</div>
-                  <div className="card-text small">
-                    Starts from:
-                    <span className="card-price">Precio</span>
-                  </div>
-                </div>
-              </a>
-            </div>
-            <div className="card-wrapper main-card">
-              <a className="card cardItemjs">
-                <div className="card-image-wrapper">
-                  <img
-                    src="https://source.unsplash.com/featured/1200x900/?interior,design"
-                    alt="Hotel"
-                  />
-                </div>
-                <div className="card-info">
-                  <div className="card-text big cardText-js">
-                    Nombre del Hotel
-                  </div>
-                  <div className="card-text small">Lugar</div>
-                  <div className="card-text small">
-                    Starts from:
-                    <span className="card-price">Precio</span>
-                  </div>
-                </div>
-              </a>
-            </div>
-            <div className="card-wrapper main-card">
-              <a className="card cardItemjs">
-                <div className="card-image-wrapper">
-                  <img
-                    src="https://source.unsplash.com/featured/1200x900/?interior,architecture"
-                    alt="Hotel"
-                  />
-                </div>
-                <div className="card-info">
-                  <div className="card-text big cardText-js">
-                    Nombre del Hotel
-                  </div>
-                  <div className="card-text small">Lugar</div>
-                  <div className="card-text small">
-                    Starts from:
-                    <span className="card-price">Precio</span>
-                  </div>
-                </div>
-              </a>
-            </div>
-            <div className="card-wrapper main-card">
-              <a className="card cardItemjs">
-                <div className="card-image-wrapper">
-                  <img
-                    src="https://source.unsplash.com/featured/1200x900/?interior,modern"
-                    alt="Hotel"
-                  />
-                </div>
-                <div className="card-info">
-                  <div className="card-text big cardText-js">
-                    Nombre del Hotel
-                  </div>
-                  <div className="card-text small">Lugar</div>
-                  <div className="card-text small">
-                    Starts from:
-                    <span className="card-price">Precio</span>
-                  </div>
-                </div>
-              </a>
-            </div>
-            <div className="card-wrapper main-card">
-              <a className="card cardItemjs">
-                <div className="card-image-wrapper">
-                  <img
-                    src="https://source.unsplash.com/featured/1200x900/?architecture,modern"
-                    alt="Hotel"
-                  />
-                </div>
-                <div className="card-info">
-                  <div className="card-text big cardText-js">
-                    Nombre del Hotel
-                  </div>
-                  <div className="card-text small">Lugar</div>
-                  <div className="card-text small">
-                    Starts from:
-                    <span className="card-price">Precio</span>
-                  </div>
-                </div>
-              </a>
-            </div>
-            <div className="card-wrapper main-card">
-              <a className="card cardItemjs">
-                <div className="card-image-wrapper">
-                  <img
-                    src="https://source.unsplash.com/featured/1200x900/?hotel,modern"
-                    alt="Hotel"
-                  />
-                </div>
-                <div className="card-info">
-                  <div className="card-text big cardText-js">
-                    Nombre del Hotel
-                  </div>
-                  <div className="card-text small">Lugar</div>
-                  <div className="card-text small">
-                    Starts from:
-                    <span className="card-price">Precio</span>
-                  </div>
-                </div>
-              </a>
-            </div>
+          
+            {
+              hotels.map(({ _id, name, address, email, phone }, i) => {
+                return (
+                  <Card
+                    key={i}
+                    name={name}
+                    address={address}
+                    email={email}
+                    phone={phone}
+                    onClick={() => {getRoomByHotel(_id, name, address, email, phone) }}
+                  >
+                  </Card>
+                )
+              })
+            }
+            {
+              rooms.map(({ _id, hotel, number, price, description }, i) => {
+                return (
+                  <CardRoom
+                    key={i}
+                    hotel={hotel}
+                    number={number}
+                    price={price}
+                    description={description}
+                    onClick={()=> {}}
+                  ></CardRoom>
+                );
+              })
+            }
+            {
+              events.map(({ _id, name, description, price }, i) => {
+                return (
+                  <CardEvent
+                    key={i}
+                    name={name}
+                    description={description}
+                    price={price}
+                  >
+                  </CardEvent>
+                )
+              })
+            }
+
           </div>
+          {
+            //card de hoteles
+          }
           <div className="app-main-right cards-area">
             <div className="app-main-right-header">
-              <span>Latest Deals</span>
-              <a href="#">See More</a>
+              <div>
+                <span>{selectedHotel.name || "Latest Deals"}</span>
+                <br></br>
+                <h1>{selectedHotel.address || ""}</h1>
+                <a href="#">See More</a>
+              </div>
+              
             </div>
-            <div className="card-wrapper main-card">
-              <a className="card cardItemjs">
-                <div className="card-image-wrapper">
-                  <img src="https://source.unsplash.com/featured/1200x900/?hotel-room,interior" />
-                </div>
-                <div className="card-info">
-                  <div className="card-text big cardText-js">
-                    Nombre del Hotel
-                  </div>
-                  <div className="card-text small">Lugar</div>
-                  <div className="card-text small">
-                    Starts from:
-                    <span className="card-price">Precio</span>
-                  </div>
-                </div>
-              </a>
-            </div>
-            <div className="card-wrapper main-card">
-              <a className="card cardItemjs">
-                <div className="card-image-wrapper">
-                  <img src="https://source.unsplash.com/featured/1200x900/?interior,hotel" />
-                </div>
-                <div className="card-info">
-                  <div className="card-text big cardText-js">
-                    Nombre del Hotel
-                  </div>
-                  <div className="card-text small">Lugar</div>
-                  <div className="card-text small">
-                    Starts from:
-                    <span className="card-price">Precio</span>
-                  </div>
-                </div>
-              </a>
-            </div>
-            <div className="card-wrapper main-card">
-              <a className="card cardItemjs">
-                <div className="card-image-wrapper">
-                  <img src="https://source.unsplash.com/featured/1200x900/?architecture,modern" />
-                </div>
-                <div className="card-info">
-                  <div className="card-text big cardText-js">
-                    Nombre del Hotel
-                  </div>
-                  <div className="card-text small">Lugar</div>
-                  <div className="card-text small">
-                    Starts from:
-                    <span className="card-price">Precio</span>
-                  </div>
-                </div>
-              </a>
-            </div>
-            <div className="card-wrapper main-card">
-              <a className="card cardItemjs">
-                <div className="card-image-wrapper">
-                  <img src="https://source.unsplash.com/featured/1200x900/?hotel,modern" />
-                </div>
-                <div className="card-info">
-                  <div className="card-text big cardText-js">
-                    Nombre del Hotel
-                  </div>
-                  <div className="card-text small">Lugar</div>
-                  <div className="card-text small">
-                    Starts from:
-                    <span className="card-price">Precio</span>
-                  </div>
-                </div>
-              </a>
-            </div>
-            <div className="card-wrapper main-card">
-              <a className="card cardItemjs">
-                <div className="card-image-wrapper">
-                  <img
-                    src="https://source.unsplash.com/featured/1200x900/?architecture,modern"
-                    alt="Hotel"
-                  />
-                </div>
-                <div className="card-info">
-                  <div className="card-text big cardText-js">
-                    Nombre del Hotel
-                  </div>
-                  <div className="card-text small">Lugar</div>
-                  <div className="card-text small">
-                    Starts from:
-                    <span className="card-price">Precio</span>
-                  </div>
-                </div>
-              </a>
-            </div>
-            <div className="card-wrapper main-card">
-              <a className="card cardItemjs">
-                <div className="card-image-wrapper">
-                  <img
-                    src="https://source.unsplash.com/featured/1200x900/?hotel,modern"
-                    alt="Hotel"
-                  />
-                </div>
-                <div className="card-info">
-                  <div className="card-text big cardText-js">
-                    Nombre del Hotel
-                  </div>
-                  <div className="card-text small">Lugar</div>
-                  <div className="card-text small">
-                    Starts from:
-                    <span className="card-price">Precio</span>
-                  </div>
-                </div>
-              </a>
-            </div>
+            
+            {
+              hotels.map(({ _id, name, address, email, phone }, i) => {
+                return (
+                  <Card
+                    key={i}
+                    name={name}
+                    address={address}
+                    email={email}
+                    phone={phone}
+                    onClick={() => getRoomByHotel(_id, name, address, email, phone)}
+                  >
+                  </Card>
+                )
+              })
+            }
           </div>
         </section>
       </div>
-      <div id="modal-window" className="shadow">
-        <div className="main-modal">
-          <div className="modal-left">
-            <div className="modal-image-wrapper">
-              <img src="https://source.unsplash.com/featured/1200x900/?design,hotel" />
-            </div>
-            <div className="modal-info-header">
-              <div className="left-side">
-                <h1 className="modalHeader-js"></h1>
-                <p>Stockton Street</p>
-              </div>
-              <div className="right-side">
-                Starts from:
-                <span className="amount">$1000</span>
-              </div>
-            </div>
-            <div className="info-bar">
-              <div className="info-wrapper">
-                <div className="info-icon">
-                  <svg
-                    className="btn-icon"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                  </svg>
-                </div>
-                <span>2 Bedrooms</span>
-              </div>
-              <div className="info-wrapper">
-                <div className="info-icon">
-                  <svg
-                    className="btn-icon feather feather-wind"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2" />
-                  </svg>
-                </div>
-                <span>2 Bathrooms</span>
-              </div>
-              <div className="info-wrapper">
-                <div className="info-icon">
-                  <svg
-                    className="btn-icon feather feather-square"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                  </svg>
-                </div>
-                <span>1250m2</span>
-              </div>
-              <div className="info-wrapper">
-                <div className="info-icon">
-                  <svg
-                    className="btn-icon feather feather-shield"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                  </svg>
-                </div>
-                <span>Highly Secured</span>
-              </div>
-            </div>
-            <div className="desc-wrapper">
-              <div className="modal-info-header">
-                <h1>Description</h1>
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                  Ut enim ad minim veniam, quis nostrud exercitation ullamco
-                  laboris nisi ut aliquip ex ea commodo consequat. Duis aute
-                  irure dolor in reprehenderit in voluptate velit esse cillum
-                  dolore eu fugiat nulla pariatur.
-                </p>
-              </div>
-              <div className="desc-actions">
-                <button className="btn-book">Book Now</button>
-                <div className="add-favourite">
-                  <input type="checkbox" id="favourite" />
-                  <label>
-                    <span className="favourite-icon">
-                      <svg
-                        className="btn-icon feather feather-heart"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                      </svg>
-                    </span>
-                    <span>Add to favourites</span>
-                  </label>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="modal-right">
-            <div className="app-main-right-header">
-              <span>Reviews</span>
-              <a href="#">See All</a>
-            </div>
-            <div className="card-wrapper">
-              <div className="card">
-                <div className="profile-info-wrapper">
-                  <div className="profile-img-wrapper">
-                    <img
-                      src="https://source.unsplash.com/featured/1200x900/?woman,cool"
-                      alt="Review"
-                    />
-                  </div>
-                  <p>Jessica Finnick</p>
-                </div>
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                  Ut enim ad minim veniam, quis nostrud exercitation ullamco
-                  laboris
-                </p>
-              </div>
-            </div>
-            <div className="card-wrapper">
-              <div className="card">
-                <div className="profile-info-wrapper">
-                  <div className="profile-img-wrapper">
-                    <img
-                      src="https://source.unsplash.com/featured/1200x900/?woman,latina"
-                      alt="Review"
-                    />
-                  </div>
-                  <p>Gloria Ramirez</p>
-                </div>
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                  Ut enim ad minim veniam, quis nostrud exercitation ullamco
-                  laboris
-                </p>
-              </div>
-            </div>
-            <div className="card-wrapper">
-              <div className="card">
-                <div className="profile-info-wrapper">
-                  <div className="profile-img-wrapper">
-                    <img
-                      src="https://source.unsplash.com/featured/1200x900/?man,art"
-                      alt="Review"
-                    />
-                  </div>
-                  <p>Luck Besson</p>
-                </div>
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                  Ut enim ad minim veniam, quis nostrud exercitation ullamco
-                  laboris
-                </p>
-              </div>
-            </div>
-            <div className="card-wrapper">
-              <div className="card">
-                <div className="profile-info-wrapper">
-                  <div className="profile-img-wrapper">
-                    <img
-                      src="https://source.unsplash.com/featured/1200x900/?woman,adventure"
-                      alt="Review"
-                    />
-                  </div>
-                  <p>Luna Rosa</p>
-                </div>
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                  Ut enim ad minim veniam, quis nostrud exercitation ullamco
-                  laboris
-                </p>
-              </div>
-            </div>
-            <div className="card-wrapper">
-              <div className="card">
-                <div className="profile-info-wrapper">
-                  <div className="profile-img-wrapper">
-                    <img
-                      src="https://source.unsplash.com/featured/1200x900/?man,modern"
-                      alt="Review"
-                    />
-                  </div>
-                  <p>John mayer</p>
-                </div>
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                  Ut enim ad minim veniam, quis nostrud exercitation ullamco
-                  laboris
-                </p>
-              </div>
-            </div>
-            <div className="card-wrapper">
-              <div className="card">
-                <div className="profile-info-wrapper">
-                  <div className="profile-img-wrapper">
-                    <img
-                      src="https://source.unsplash.com/featured/1200x900/?woman"
-                      alt="Review"
-                    />
-                  </div>
-                  <p>Tina Finnick</p>
-                </div>
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                  Ut enim ad minim veniam, quis nostrud exercitation ullamco
-                  laboris
-                </p>
-              </div>
-            </div>
-            <div className="card-wrapper">
-              <div className="card">
-                <div className="profile-info-wrapper">
-                  <div className="profile-img-wrapper">
-                    <img
-                      src="https://source.unsplash.com/featured/1200x900/?woman,modern"
-                      alt="Review"
-                    />
-                  </div>
-                  <p>July Wallock</p>
-                </div>
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                  Ut enim ad minim veniam, quis nostrud exercitation ullamco
-                  laboris
-                </p>
-              </div>
-            </div>
-          </div>
-          <button className="btn btn-close">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="32"
-              height="32"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="feather feather-x"
-            >
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
-        </div>
-      </div>
-      <script>
-        let ini= document.querySelector('#modal-window');
-        ini.classNameList.add("hideModal");
-      </script>
+
     </>
   );
 };

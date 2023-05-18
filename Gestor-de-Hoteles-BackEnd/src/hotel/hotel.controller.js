@@ -16,8 +16,10 @@ exports.addHotel = async (req, res) => {
         let data = req.body
         //let userRole = req.user.rol
         let dataRequired = data.admin;
-        if (!dataRequired || dataRequired == '') return res.status(400).send({ message: 'Params admin is required' });
-        if(data.numberOfRooms) return res.status(400).send({message:'This params is not allowed'})
+        if (!dataRequired || dataRequired == '' || !data.name || data.name == '' || !data.address || data.address == '' ||
+            !data.contact || data.contact == '' || !data.email || data.email == '' || !data.phone || data.phone == '' ||
+            !data.eventAvailability || data.eventAvailability == '') return res.status(400).send({ message: 'Params is required' });
+        if(data.numberOfRooms) return res.status(400).send({message:'The param numberOfRooms is not allowed'})
         //Validar que el usuario exista
         let userExist = await User.findOne({ _id: dataRequired })
         if (!userExist) return res.status(400).send({ message: 'user not found' });
@@ -44,9 +46,19 @@ exports.addHotel = async (req, res) => {
     }
 }
 
+exports.getHotelsByPopularity = async(req, res) =>{
+    try{
+        let hotels = await Hotel.find().sort({popularity: -1}).populate('admin', 'name');
+        return res.status(200).send({hotels})
+    }catch(err){
+        console.error(err)
+        return res.status(500).send({message: 'Error getting hotels'}); 
+    }
+}
+
 exports.getsHotels = async(req, res) => {
     try{
-        let hotels = await Hotel.find();
+        let hotels = await Hotel.find().populate('admin', 'name');
         return res.status(200).send({hotels})
     }catch(err){
         console.error(err);
@@ -56,7 +68,7 @@ exports.getsHotels = async(req, res) => {
 
 exports.getHotel = async(req, res) => {
     try{
-        let hotel = await Hotel.findOne({ _id: req.params.id });
+        let hotel = await Hotel.findOne({ _id: req.params.id }).populate('admin', 'name');
         if(!hotel) return res.status(404).send({message: 'Hotel not found'});
         return res.status(200).send({hotel});
     }catch(err){
@@ -85,7 +97,7 @@ exports.searchByName = async(req, res) => {
                 $options: "i",
             };
         }
-        let hotels = await Hotel.find(filter);
+        let hotels = await Hotel.find(filter).populate('admin', 'name');
         return res.send({hotels});
         /*
         let hotel = await Hotel.find({
