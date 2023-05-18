@@ -5,6 +5,7 @@ const User = require('../user/user.model');
 const { unauthorizatedData } = require('../utils/validate');
 const Bill = require('../bill/bill.model')
 const AdditionalServices = require('../additionalServices/additionalServices.model')
+const AdditionalMeals = require('../additionalMeals/additionalMeals.model');
 
 exports.test = (req, res) => {
     return res.status(201).send({ message: 'test is running' });
@@ -89,6 +90,45 @@ exports.addAdditionalServicesHotel = async (req, res) => {
         },
         { new: true }
       ).populate('additionalServices.additionalServices');
+      return res.status(201).send({ updatedHotel });
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  exports.addAdditionalMealsHotel = async (req, res) => {
+    try {
+      let hotelId = req.params.id;
+      let data = req.body;
+      let hotelExist = await Hotel.findOne({ _id: hotelId }).populate('additionalMeals');
+      if (!hotelExist)
+        return res.status(404).send({ message: "Hotel not found" });
+    if(hotelExist.admin != req.user.sub) return res.status(400).send({message: 'You do not have permissions'})
+      let mealExists = await AdditionalMeals.findOne({
+        _id: data.additionalMeal
+      });
+      if (!mealExists)
+        return res.status(404).send({ message: "Additional Meal not found" });
+      let msg = hotelExist.additionalMeals.map((item) => {
+        if (item.additionalMeal == data.additionalMeal) return 400;
+        return 201;
+      });
+      if (msg.includes(400))
+        return res
+          .status(400)
+          .send({ message: "Additional Meal already exists" });
+      let updatedHotel = await Hotel.findOneAndUpdate(
+        { _id: hotelId },
+        {
+          additionalMeals: [
+            ...hotelExist.additionalMeals,
+            {
+              additionalMeal: data.additionalMeal,
+            },
+          ],
+        },
+        { new: true }
+      ).populate('additionalMeals.additionalMeal');
       return res.status(201).send({ updatedHotel });
     } catch (err) {
       console.log(err);

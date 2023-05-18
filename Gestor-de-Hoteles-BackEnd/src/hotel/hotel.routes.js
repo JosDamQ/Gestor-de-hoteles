@@ -12,6 +12,7 @@ api.get('/gets', hotelController.getsHotels);
 api.get('/get/:id', hotelController.getHotel);
 api.get('/searchByNameAndAddress', hotelController.searchByName);
 api.delete('/deleteHotel/:id', ensureAuth, hotelController.deleteHotel)
-api.put('/addAdditionalService/:id', ensureAuth, hotelController.addAdditionalServicesHotel)
+api.put('/addAdditionalService/:id', ensureAuth, hotelController.addAdditionalServicesHotel);
+api.put('/addAdditionalMeals/:id', ensureAuth, hotelController.addAdditionalMealsHotel);
 
 module.exports = api
