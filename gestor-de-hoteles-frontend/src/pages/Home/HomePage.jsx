@@ -243,7 +243,6 @@ export const HomePage = () => {
   const addRoom = async(e)=>{
     try {
       e.preventDefault()
-      console.log(formRoom)
       await axios.post('http://localhost:2765/Room/save', formRoom, {headers: headers})
       setFormRoom({})
     } catch (err) {

@@ -23,7 +23,6 @@ export const Navbar = ({ onNavbarItemClick }) => {
         email: data.myInfo.email,
         rol: data.myInfo.rol
       })
-      console.log(dataUser)
     } catch (err) {
       console.error(err);
     }
@@ -38,7 +37,6 @@ export const Navbar = ({ onNavbarItemClick }) => {
         onNavbarItemClick(message2);
       }
     };
-    console.log(dataUser)
 
   return (
     <section className="navigation">
@@ -95,7 +93,7 @@ export const Navbar = ({ onNavbarItemClick }) => {
           </svg>
         </button>
         <Link to='/infoUser'>
-          <button className="profile-btn" link>
+          <button className="profile-btn">
             <span>{dataUser.email}</span>
             <img
               src="https://images.unsplash.com/photo-1492633397843-92adffad3d1c?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2167&q=80"
