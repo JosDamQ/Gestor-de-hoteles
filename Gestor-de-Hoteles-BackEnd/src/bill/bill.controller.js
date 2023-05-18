@@ -5,6 +5,10 @@ const { validateData } = require("../utils/validate");
 const User = require("../user/user.model");
 const Hotel = require("../hotel/hotel.model");
 const Room = require("../room/room.model");
+const AdditionalServices = require("../additionalServices/additionalServices.model");
+const AdditionalMeals = require("../additionalMeals/additionalMeals.model");
+const EventType = require("../eventType/eventType.model");
+const moment = require("moment");
 
 exports.test = (req, res) => {
   return res.send({ message: "Bill test running" });
@@ -14,7 +18,8 @@ exports.createReservation = async (req, res) => {
   try {
     let data = req.body;
     data.description = "RESERVATION";
-    let me = req.user
+    let me = req.user;
+    if (!data.duration || data.duration == '') data.duration = 1;
     data.user = req.user.sub;
     let params = {
       room: data.room,
@@ -32,16 +37,16 @@ exports.createReservation = async (req, res) => {
     let roomExists = await Room.findOne({ _id: data.room, hotel: data.hotel });
     if (!roomExists)
       return res.status(400).send({ message: "Room not found in this hotel" });
-    data.entryDate = new Date(data.entryDate).toLocaleDateString();
-    let endDate = new Date(data.entryDate).toLocaleDateString();
-    data.departureDate = new Date(endDate);
-    let dateNow = new Date(Date.now());
-    if (Date.parse(data.entryDate) < Date.parse(dateNow))
+    let startDate = data.entryDate;
+    data.entryDate = moment(startDate, "DD/MM/YYYY", true);
+    data.departureDate = moment(startDate, "DD/MM/YYYY", true);
+    if (Date.parse(data.entryDate) < Date.parse(new Date()))
       return res
         .status(400)
         .send({ message: `Can't create a reservation in this date` });
-    data.departureDate.setDate(data.departureDate.getDate() + parseInt(data.duration));
-    data.departureDate = new Date(data.departureDate).toLocaleDateString();
+    data.departureDate = data.departureDate.add(data.duration, 'days')
+    data.entryDate = data.entryDate.format('DD/MM/YYYY')
+    data.departureDate = data.departureDate.format('DD/MM/YYYY')
     let availabilityRoom = await Bill.findOne({
       entryDate: data.entryDate,
       room: data.room,
@@ -52,6 +57,7 @@ exports.createReservation = async (req, res) => {
         .status(400)
         .send({ message: "Room has a reservation on this date" });
     data.total = roomExists.price * data.duration;
+
     let newReservation = new Bill(data);
     await newReservation.save();
     return res.send({ message: "Reservation created successfully" });
@@ -66,40 +72,38 @@ exports.addAdditionalServicesReservation = async (req, res) => {
     let reservationId = req.params.id;
     let data = req.body;
     let reservationExists = await Bill.findOne({ _id: reservationId });
-    if (!leaseExists)
-      return res.status(404).send({ message: "Lease not found" });
-    // Validar que el servicio exista
+    if (!reservationExists)
+      return res.status(404).send({ message: "Reservation not found" });
     let serviceExists = await AdditionalServices.findOne({
       _id: data.additionalService,
     });
     if (!serviceExists)
       return res.status(404).send({ message: "Additional Services not found" });
-    // Validar que no esté en el arreglo
-    let msg = leaseExists.additionalServices.map((item) => {
-      if (item.service == data.additionalService) return 400;
+    let msg = reservationExists.additionalServices.map((item) => {
+      if (item.additionalService == data.additionalService) return 400;
       return 201;
     });
     if (msg.includes(400))
       return res
         .status(400)
         .send({ message: "Additional Service already exists" });
-    // cambiar total
-    let total = leaseExists.total + serviceExists.price * leaseExists.month;
-    // Agregar servicio adicional al arrendamiento
-    let updatedLease = await Lease.findOneAndUpdate(
-      { _id: leaseId },
+    let total =
+      reservationExists.total +
+      serviceExists.price * reservationExists.duration;
+    let updatedBill = await Bill.findOneAndUpdate(
+      { _id: reservationId },
       {
         total: total,
         additionalServices: [
-          ...leaseExists.additionalServices,
+          ...reservationExists.additionalServices,
           {
-            service: data.additionalService,
+            additionalService: data.additionalService,
           },
         ],
       },
       { new: true }
-    ).populate(`additionalServices.service`);;
-    return res.status(201).send({ updatedLease });
+    ).populate(`additionalServices.additionalService`);
+    return res.status(201).send({ updatedBill });
   } catch (err) {
     console.log(err);
   }
@@ -107,7 +111,6 @@ exports.addAdditionalServicesReservation = async (req, res) => {
 
 exports.createEvent = async (req, res) => {
   try {
-
   } catch (err) {
     console.log(err);
   }
