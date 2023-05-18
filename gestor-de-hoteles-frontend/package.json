@@ -10,6 +10,7 @@
   },
   "dependencies": {
 <<<<<<< HEAD
+<<<<<<< HEAD
     "@popperjs/core": "^2.11.7",
     "axios": "^1.4.0",
     "bootstrap": "^5.2.3",
@@ -17,16 +18,25 @@
     "axios": "^1.4.0",
     "bootstrap": "^5.3.0-alpha3",
 >>>>>>> cdeleon
+=======
+    "axios": "^1.4.0",
+    "bootstrap": "^5.3.0-alpha3",
+>>>>>>> clopez
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.11.1",
     "styled-components": "^6.0.0-rc.1",
+<<<<<<< HEAD
 <<<<<<< HEAD
     "sweetalert": "^2.1.2",
     "sweetalert2": "^11.7.5"
 =======
     "sweetalert": "^2.1.2"
 >>>>>>> cdeleon
+=======
+    "sweetalert": "^2.1.2",
+    "sweetalert2": "^11.7.5"
+>>>>>>> clopez
   },
   "devDependencies": {
     "@types/react": "^18.0.28",

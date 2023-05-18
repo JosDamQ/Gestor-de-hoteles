@@ -75,7 +75,6 @@ body, html {
     background-color: var(--app-bg);
     transition: 0.2s;
 }
-
 button, a {
     cursor: pointer;
 }
@@ -345,7 +344,6 @@ section.app-actions {
     padding: 0;
     height: 100%;
 }
-
 .app-main-right .card-image-wrapper img {
     margin: 0;
 }
@@ -824,3 +822,58 @@ section.app-actions {
     text-align: right;
 }
 
+.button1{
+    display:inline-block;
+    padding:0.35em 1.2em;
+    border:0.1em solid #7ED957;
+    margin:0 0.3em 0.3em 0;
+    border-radius:0.12em;
+    box-sizing: border-box;
+    text-decoration:none;
+    font-family:'Roboto',sans-serif;
+    font-weight:300;
+    background-color: #7ED957;
+    text-align:center;
+    transition: all 0.2s;
+    border-radius: 5px;
+}
+
+.button1:hover{
+    color:#000000;
+    background-color:#FFFFFF;
+}
+
+@media all and (max-width:30em){
+    .button1{
+        display:block;
+        margin:0.4em auto;
+    }
+}
+
+.botonAdd {
+    font-size: 18px;
+    width: 50%;
+    padding: 10px;
+    outline: none;
+    border: 1px solid #9b9b9b;
+    color: #3e4144;
+    background: none;
+    border-radius: 5px;
+    background-color: #7ED957;
+}
+
+.inputModal {
+    margin-bottom: 10px;
+    font-size: 18px;
+    width: 100%;
+    padding: 10px;
+    outline: none;
+    border: 1px solid #9b9b9b;
+    color: #3e4144;
+    
+    border: 1px solid #393939;
+    border-radius: 5px 5px 5px 5px;
+    color: #393939;
+    font-size: 12px;
+    padding: 5px;
+}
