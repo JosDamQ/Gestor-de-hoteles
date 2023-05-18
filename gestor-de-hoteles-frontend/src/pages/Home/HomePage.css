@@ -75,9 +75,7 @@ body, html {
     background-color: var(--app-bg);
     transition: 0.2s;
 }
-a {
-    text-decoration: none;
-}
+
 button, a {
     cursor: pointer;
 }
@@ -347,9 +345,7 @@ section.app-actions {
     padding: 0;
     height: 100%;
 }
-.app-main-right .card {
-    height: 160px;
-}
+
 .app-main-right .card-image-wrapper img {
     margin: 0;
 }
@@ -818,3 +814,13 @@ section.app-actions {
         display: none;
    }
 }
+
+
+.card-wrapper a {
+    text-decoration: none;
+}
+
+.seeMore {
+    text-align: right;
+}
+

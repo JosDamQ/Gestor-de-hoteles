@@ -42,6 +42,7 @@ export const HomePage = () => {
       console.log("Mensaje recibido:", message2);
       setRooms([]);
       setEvents([])
+      setSelectedHotel()
       getHotels();}
     if( message2 == 'Events'){
       console.log("Mensaje recibido:", message2);
@@ -250,26 +251,6 @@ export const HomePage = () => {
           </div>
         </section>
         <section className="app-main">
-          <button onClick={()=> setShowModalRoom(true)} >Mostrar modal</button>
-          <button onClick={()=> setShowModalHotel(true)} >Mostrar hotel</button>
-          {showModalRoom ? <ModalRoom titleModal= {'Agregar'} showModalRoom={showModalRoom} setShowModalRoom={setShowModalRoom}>
-            <p>Hola mundo</p>
-            <button onClick={()=>alert("hola mundo")} >Alerta</button>
-          </ModalRoom> : <></>}
-          {showModalHotel ? <ModalRoom titleModal= {'No agregar'} showModalRoom={showModalHotel} setShowModalRoom={setShowModalHotel}>
-            <p>No agregar hotel</p>
-            <button onClick={()=>alert("hola mundo")} >Alerta</button>
-          </ModalRoom> : <></>}
-        <div>
-                {
-                  selectedHotel.address ? (
-                    <div>
-                      <button onClick={()=>setShowModalRoom(true)}>Agregar Cuarto</button>
-                      <ModalRoom modal={showModalRoom} setModal={setShowModalRoom}></ModalRoom>
-                    </div>
-                  ) : ( <></>)
-                }
-            </div>
           <div className="app-main-left cards-area">
           
             {
@@ -324,8 +305,8 @@ export const HomePage = () => {
               <div>
                 <span>{selectedHotel.name || "Latest Deals"}</span>
                 <br></br>
-                <h1>{selectedHotel.address || ""}</h1>
-                <a href="#">See More</a>
+                <span>{selectedHotel.address || ""}</span>
+                
               </div>
               
             </div>
