@@ -10,6 +10,6 @@ api.get('/test', hotelController.test);
 api.post('/add', [ensureAuth, isAdmin], hotelController.addHotel);
 api.get('/gets', hotelController.getsHotels);
 api.get('/get/:id', hotelController.getHotel);
-api.get('/searchByNameAndAddress', hotelController.searchByName);
+api.post('/searchByName', hotelController.searchByName);
 
 module.exports = api

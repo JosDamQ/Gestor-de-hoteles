@@ -190,9 +190,10 @@ export const HomePage = () => {
     try {
       setHotels([]);
       setRooms([]);
-      const { data } = await axios.post('http://localhost:2765/Hotel/searchByNameAndAddress', form);
+      const { data } = await axios.post('http://localhost:2765/Hotel/searchByName', form);
+      console.log(data)
       if (!data) getHotels();
-      setHotels(data.hotels);
+      setHotels(data.filter);
     } catch (err) {
       console.error(err);
     }
