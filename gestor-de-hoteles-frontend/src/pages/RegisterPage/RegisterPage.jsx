@@ -40,13 +40,18 @@ export const RegisterPage = () => {
   const login = async (e) => {
     try {
       e.preventDefault()
-      //const { data } = await axios.post('http://localhost:3200/user/login', form)
       const { data } = await axios.post('http://localhost:2765/User/login', form)
       console.log(data.user)
       if (data.message) {
         //alert(data.message)
         localStorage.setItem('token', data.token)
-        setDataUser(data.userLogged)
+        setDataUser({
+          name: data.userLogged.name,
+          surname: data.userLogged.surname,
+          phone: data.userLogged.phone,
+          email: data.userLogged.email,
+          rol: data.userLogged.rol
+        })
         setLoggedIn(true)
         navigate('/')
         Swal.fire({

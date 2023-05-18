@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {Navbar} from "../../components/Navbar";
 import "../Home/HomePage.css";
 import { Card } from "../../components/Card";
 import { CardRoom } from "../../components/CardRoom";
 import { CardEvent } from "../../components/cardEvents";
 import { ModalRoom } from '../../components/Modals/ModalRoom'
+import { AuthContext } from '../../Index'
 
 import axios from 'axios'
 
 export const HomePage = () => {
 
+  const {dataUser} = useContext(AuthContext)
       // Modal
   const [showModalRoom, setShowModalRoom] = useState(false);
   const [showModalHotel, setShowModalHotel] = useState(false)
@@ -25,16 +27,16 @@ export const HomePage = () => {
     const [rooms, setRooms] = useState([{}]);
     const [events, setEvents] = useState([{}])
     // Es el hotel seleccionado, si es que hay alguno
-    const [selectedHotel, setSelectedHotel] = useState({});
+    const [selectedHotel, setSelectedHotel] = useState('');
     // Mensajes que van cambiando
-    const [message2, setMessage2] = useState("");
     const [message, setMessage] = useState()
+    const [message2, setMessage2] = useState();
+    const [message3, setMessage3] = useState("");
     // Funcionalidad barra de busqueda
 
   const [workers, setWorkers] = useState([{}]);
 
 
-  const [hotelId, setHotelId] = useState();
 
   const [form, setForm] = useState({
     name: '',
@@ -56,7 +58,7 @@ export const HomePage = () => {
       console.log("Mensaje recibido:", message2);
       setRooms([]);
       setEvents([])
-      setSelectedHotel()
+      setSelectedHotel('')
       getHotels();}
     if( message2 == 'Events'){
       console.log("Mensaje recibido:", message2);
@@ -97,7 +99,7 @@ export const HomePage = () => {
   const [formRoom, setFormRoom] = useState({
     name: '',
     number: '',
-    hotel: hotelId,
+    hotel: '',
     description: '',
     price: ''
   })
@@ -105,6 +107,7 @@ export const HomePage = () => {
   const handleChangeRoom = (e) => {
     setFormRoom({
       ...formRoom,
+      hotel: selectedHotel.id,
       [e.target.name]: e.target.value
     })
   }
@@ -228,7 +231,8 @@ export const HomePage = () => {
   
   const addHotel = async()=>{
     try {
-      const { data } = await axios.post('http://localhost:2765/Hotel/add', formHotel, {headers: headers})
+      await axios.post('http://localhost:2765/Hotel/add', formHotel, {headers: headers})
+      
       setFormHotel({})
     } catch (err) {
       console.error(err);
@@ -236,11 +240,12 @@ export const HomePage = () => {
     }
   }
 
-  const addRoom = async()=>{
+  const addRoom = async(e)=>{
     try {
-      const { data } = await axios.post('http://localhost:2765/Room/save', formRoom, {headers: headers})
+      e.preventDefault()
+      console.log(formRoom)
+      await axios.post('http://localhost:2765/Room/save', formRoom, {headers: headers})
       setFormRoom({})
-      setHotelId()
     } catch (err) {
       console.error(err);
     }
@@ -268,17 +273,18 @@ export const HomePage = () => {
   useEffect(()=> getHotels, []);
 
   useEffect(() => {
-    if (selectedHotel.name) {
-      setMessage(`Selected Hotel: ${selectedHotel.name}`);
-    } else {
+    if (selectedHotel) {
+      setMessage(`Hotel: ${selectedHotel.name}`);
+      setMessage3(`Address: ${selectedHotel.address}`)
+    } else if (selectedHotel == '') {
       setMessage('Latest Deals');
+      setMessage3('')
     }
   }, [selectedHotel]);
   return (
     <>
       <div className="app-container">
         <Navbar onNavbarItemClick={handleNavbarItemClick}/>
-        <div>{message2}</div>
         {/* <section className="navigation">
           <div className="navigation">
             <img
@@ -503,22 +509,23 @@ export const HomePage = () => {
                 return (
                   <Card
                     key={i}
+                    _id={_id}
                     name={name}
                     address={address}
                     email={email}
                     phone={phone}
-                    onClick={() => {getRoomByHotel(_id, name, address, email, phone), setHotelId(_id) }}
+                    onClick={() => {getRoomByHotel(_id, name, address, email, phone) }}
                   >
                   </Card>
                 )
               })
             }
             {
-              rooms.map(({ _id, hotel, number, price, description }, i) => {
+              rooms.map(({ _id, name, number, price, description }, i) => {
                 return (
                   <CardRoom
                     key={i}
-                    hotel={hotel}
+                    name={name}
                     number={number}
                     price={price}
                     description={description}
@@ -548,11 +555,12 @@ export const HomePage = () => {
           <div className="app-main-right cards-area">
             <div className="app-main-right-header">
               <div>
-                <span>{selectedHotel.name || "Latest Deals"}</span>
+                <span>{message}</span>
                 <br></br>
-                <span>{selectedHotel.address || ""}</span>
+                <span>{message3}</span>
+                <br></br>
               </div>
-              {selectedHotel.address ? (
+              {selectedHotel ? (
                 <div>
                   <button className="button1" onClick={()=> setShowModalRoom(true)} >Agregar cuarto</button>
                   <button className="button1" onClick={()=> setShowModalRoom(true)} >Editar Hotel</button>

@@ -13,6 +13,7 @@ api.put('/updateAccount/:id', ensureAuth, userController.updateAccount)
 api.put('/updatePassword/:id', ensureAuth, userController.updatePassword)
 api.delete('/deleteAccount/:id', ensureAuth, userController.deleteAccount)
 api.get('/getAccount/:id', ensureAuth, userController.getAccount)
+api.get('/myInfo', ensureAuth, userController.myInfo)
 
 //Funciones CLIENT
 api.post('/register', userController.register);

@@ -39,7 +39,9 @@ exports.login = async (req, res) => {
       let token = await createToken(user);
       let userLogged = {
         name: user.name,
-        username: user.username,
+        surname: user.surname,
+        phone: user.phone,
+        email: user.email,
         rol: user.rol,
       };
       return res.send({
@@ -54,6 +56,14 @@ exports.login = async (req, res) => {
     return res.status(500).send({ error: err.message });
   }
 };
+
+exports.myInfo = async(req, res)=>{
+  try {
+    return res.send({myInfo: req.user});
+  } catch (err) {
+    console.log(err);
+  }
+}
 
 exports.register = async (req, res) => {
   try {

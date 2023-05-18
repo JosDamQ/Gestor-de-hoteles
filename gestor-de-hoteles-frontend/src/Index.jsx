@@ -15,7 +15,9 @@ export const Index = () => {
   const [loggedIn, setLoggedIn] = useState(false);
   const [dataUser, setDataUser] = useState({
     name: '' ,
-    username: '',
+    surname: '',
+    email: '',
+    phone: '',
     rol: ''
   })
   const routes = createBrowserRouter([

@@ -15,13 +15,13 @@ exports.saveRoom = async (req, res) => {
       return res
         .status(400)
         .send({ message: `Parameter 'available' is not allowed` });    
-    let existRoom = await Room.find({
-      name: regex,
+    let existRoom = await Room.findOne({
+
       number: data.number,
       hotel: data.hotel,
     });
-    if (existRoom)
-      return res.status(400).send({ message: "Room number already exist" });
+    console.log(existRoom)
+    if (existRoom ) return res.status(400).send({ message: "Room number already exist" });
     let hotelExist = await Hotel.findById({ _id: data.hotel });
     if (!hotelExist)
       return res.status(404).send({ message: "Hotel not found" });
