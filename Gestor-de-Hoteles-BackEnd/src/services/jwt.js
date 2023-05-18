@@ -9,6 +9,7 @@ exports.createToken = async(user)=>{
       name: user.name,
       surname: user.surname,
       username: user.username,
+      phone: user.phone,
       email: user.email,
       rol: user.rol,
       iat: Math.floor(Date.now()/ 1000), //Formato UNIX fecha en segundos a partis de el 1 de enero 1970
