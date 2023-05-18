@@ -128,6 +128,51 @@ exports.addAdditionalServicesReservation = async (req, res) => {
   }
 };
 
+exports.addAdditionalMealsReservation = async (req, res) => {
+  try {
+    let reservationId = req.params.id;
+    let data = req.body;
+    let reservationExists = await Bill.findOne({ _id: reservationId });
+    if (!reservationExists)
+      return res.status(404).send({ message: "Reservation not found" });
+    let serviceHotelExists = await Hotel.findOne({
+      _id: reservationExists.hotel,
+    }).populate("additionalMeals");
+    let serviceHotel = serviceHotelExists.AdditionalMeals.filter((item) =>
+      item.AdditionalMeal.equals(data.additionalMeal)
+    );
+    if (serviceHotel.length == 0)
+      return res.status(400).send({ message: "AdditionalMeal not found" });
+    let serviceExists = await AdditionalMeals.findOne({
+      _id: serviceHotel[0].additionalMeal
+    });
+    let msg = reservationExists.additionalMeals.map((item) => {
+      if (item.additionalMeal == data.additionalMeal) return 400;
+      return 201;
+    });
+    let total =
+      reservationExists.total +
+      serviceExists.price * reservationExists.duration;
+    let updatedBill = await Bill.findOneAndUpdate(
+      { _id: reservationId },
+      {
+        total: total,
+        additionalMeals: [
+          {cant: 1},
+          ...reservationExists.additionalMeals,
+          {
+            additionalMeal: data.additionalMeal,
+          },
+        ],
+      },
+      { new: true }
+    ).populate(`additionalMeals.additionalMeal`);
+    return res.status(201).send({ updatedBill });
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 exports.getReservations = async (req, res) => {
   try {
     let reservations = await Bill.findOne({ description: "RESERVATION" })
@@ -155,7 +200,7 @@ exports.getMyReservations = async (req, res) => {
       .populate("user", { password: 0 })
       .populate("hotel", { eventAvailability: 0 })
       .populate("room", { available: 0 })
-      .populate("additionalServices.additionalService")
+      .populate(".additionalService")
       .populate("additionalMeals.additionalMeal");
     return res.send({ reservations });
   } catch (err) {
