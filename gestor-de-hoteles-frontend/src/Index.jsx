@@ -8,12 +8,15 @@ import { RegisterPage } from "./pages/RegisterPage/RegisterPage";
 //import { infoUser } from "./pages/InfoUserPage/infoUser";
 //import { infoUser } from "./pages/InfoUserPage/infoUser"
 import { InfoUserPage } from "./pages/InfoUserPage/InfoUserPage";
+import { Users } from "./pages/Users/Users";
+import { Workers } from "./pages/Users/Workers";
 
 export const AuthContext = createContext();
 
 export const Index = () => {
   const [loggedIn, setLoggedIn] = useState(false);
   const [dataUser, setDataUser] = useState({
+    sub: '',
     name: '' ,
     surname: '',
     email: '',
@@ -37,6 +40,14 @@ export const Index = () => {
         {
           path: "register",
           element: <RegisterPage></RegisterPage>,
+        },
+        {
+          path: "Users",
+          element: <Users></Users>,
+        },
+        {
+          path: "Workers",
+          element: <Workers></Workers>,
         },
         // {
         //   path: "reservation",

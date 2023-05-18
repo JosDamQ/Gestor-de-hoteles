@@ -7,12 +7,13 @@ import { CardEvent } from "../../components/cardEvents";
 import { ModalRoom } from '../../components/Modals/ModalRoom'
 import { AuthContext } from '../../Index'
 import Swal from "sweetalert2";
+import { Navigate, useNavigate } from "react-router-dom";
 
 import axios from 'axios'
 import swal from "sweetalert";
 
 export const HomePage = () => {
-
+  const navigate = useNavigate()
   const {dataUser} = useContext(AuthContext)
       // Modal
   const [showModalRoom, setShowModalRoom] = useState(false);
@@ -37,6 +38,8 @@ export const HomePage = () => {
     const [message2, setMessage2] = useState();
     const [message3, setMessage3] = useState("");
     // Funcionalidad barra de busqueda
+
+
 
   const [workers, setWorkers] = useState([{}]);
   
@@ -220,9 +223,10 @@ export const HomePage = () => {
     try {
       setHotels([]);
       setRooms([]);
-      const { data } = await axios.post('http://localhost:2765/Hotel/searchByNameAndAddress', form);
+      const { data } = await axios.post('http://localhost:2765/Hotel/searchByName', form);
+      console.log(data)
       if (!data) getHotels();
-      setHotels(data.hotels);
+      setHotels(data.filter);
     } catch (err) {
       console.error(err);
     }
@@ -303,9 +307,24 @@ export const HomePage = () => {
     }
   }
 
-  const addReservation = async()=>{
+
+  const checkLogin = async =>{
+    try{
+      if(!localStorage.getItem('token')) {
+        navigate('/register')
+      }
+    }catch(err){
+      console.error(err)
+    }
+  }
+  const addReservation = async(e)=>{
     try {
-        const {data} = axios.post('http://localhost:2765/Bill/createReservation', formReservation, {headers: headers})
+      e.preventDefault()
+      console.log(selectedRoom.id)
+      console.log(formReservation)
+      
+      const {data} = axios.post('http://localhost:2765/Bill/createReservation', formReservation, {headers: headers})
+      console.log(data)
 
 
     } catch (err) {
@@ -316,7 +335,6 @@ export const HomePage = () => {
 
   const addRoom = async(e)=>{
     try {
-      e.preventDefault()
       await axios.post('http://localhost:2765/Room/save', formRoom, {headers: headers})
       setFormRoom({})
     } catch (err) {
@@ -532,8 +550,8 @@ export const HomePage = () => {
           </ModalRoom> : <></>}
 
           {showModalReservation ? <ModalRoom titleModal= {'Agregar Reservacion'} showModalRoom={showModalReservation} setShowModalRoom={setShowModalReservation}>
-            <input className="inputModal" type='text' placeholder='Fecha de entrada' name='entryDate' onChange={handleChangeEventReservation} required />
-            <input className="inputModal" type='number' placeholder='Duracion' name='duration' onChange={handleChangeEventReservation} required />
+            <input className="inputModal" type='text' placeholder='Fecha de entrada' name='entryDate' onChange={handleChangeReservation} required />
+            <input className="inputModal" type='number' placeholder='Duracion' name='duration' onChange={handleChangeReservation} required />
             <button className="botonAdd" onClick={addReservation} >Agregar reservacion</button>
           </ModalRoom> : <></>}
 
@@ -565,7 +583,7 @@ export const HomePage = () => {
                     number={number}
                     price={price}
                     description={description}
-                    onClick={()=> {setSelectedRoom({_id, name, number, price, description}), setModal(dataUser.rol)}}
+                    onClick={()=> {setSelectedRoom({id:_id, name:name, number:number, price:price, description:description}), setShowModalReservation(true), checkLogin()}}
                   ></CardRoom>
                 );
               })

@@ -46,14 +46,6 @@ const hotelSchema = mongoose.Schema(
         },
       },
     ],
-    eventType: [
-      {
-        eventType: {
-          type:  mongoose.Schema.Types.ObjectId,
-          ref: "EventType",
-        },
-      },
-    ],
     eventAvailability: { type: Boolean, default: true },
     popularity: {
       type: Number,
