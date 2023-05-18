@@ -16,7 +16,9 @@ export const Navbar = ({ onNavbarItemClick }) => {
   const getUser = async () => {
     try {
       const { data } = await axios('http://localhost:2765/User/myInfo', {headers: headers});
+      console.log(data.myInfo.sub)
       setDataUser({
+        sub: data.myInfo.sub,
         name: data.myInfo.name,
         surname: data.myInfo.surname,
         phone: data.myInfo.phone,

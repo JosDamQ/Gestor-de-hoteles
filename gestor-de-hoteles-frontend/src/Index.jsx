@@ -14,6 +14,7 @@ export const AuthContext = createContext();
 export const Index = () => {
   const [loggedIn, setLoggedIn] = useState(false);
   const [dataUser, setDataUser] = useState({
+    sub: '',
     name: '' ,
     surname: '',
     email: '',

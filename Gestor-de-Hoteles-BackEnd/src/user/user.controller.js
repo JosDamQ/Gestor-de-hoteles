@@ -39,6 +39,7 @@ exports.login = async (req, res) => {
     if (user && (await compare(data.password, user.password))) {
       let token = await createToken(user);
       let userLogged = {
+        sub: user.sub,
         name: user.name,
         surname: user.surname,
         phone: user.phone,

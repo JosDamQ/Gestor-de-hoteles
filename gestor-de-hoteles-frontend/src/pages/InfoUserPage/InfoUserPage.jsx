@@ -1,10 +1,11 @@
 import React, {useContext, useEffect} from 'react'
-import './InfoUserPage.css'
+import '../InfoUserPage/InfoUserPage.css'
 import { AuthContext } from "../../Index";
 import axios from "axios";
 //import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import '../../../node_modules/bootstrap/dist/js/bootstrap.min.js'
+import { BillTable } from '../../components/BillTable.jsx';
 
 export const InfoUserPage = () => {
 
@@ -19,6 +20,7 @@ export const InfoUserPage = () => {
         try {
           const { data } = await axios('http://localhost:2765/User/myInfo', {headers: headers});
           setDataUser({
+            sub: data.myInfo.sub,
             name: data.myInfo.name,
             surname: data.myInfo.surname,
             phone: data.myInfo.phone,
@@ -62,26 +64,7 @@ export const InfoUserPage = () => {
                 <h3 className="titulo">Reservations</h3>
             </div>
             {/*<div className="perfil-usuario-footer">*/}
-                <table className= "table table-light table-striped">
-                    <thead>
-                        <tr>
-                            <th>Hotel</th>
-                            <th>Room</th>
-                            <th>Additional Services</th>
-                            <th>Date</th>
-                            <th>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Hotel cualquier cosa</td>
-                            <td>Presidencial o yo que se</td>
-                            <td>Ninguno</td>
-                            <td>Hoy a mañana</td>
-                            <td>5000</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <BillTable></BillTable>
                 <br />
                 <br />
             {/*</div>*/}
