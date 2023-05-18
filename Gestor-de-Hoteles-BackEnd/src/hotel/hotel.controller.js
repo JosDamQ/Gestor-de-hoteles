@@ -3,6 +3,8 @@
 const Hotel = require('./hotel.model')
 const User = require('../user/user.model');
 const { unauthorizatedData } = require('../utils/validate');
+const Bill = require('../bill/bill.model')
+const AdditionalServices = require('../additionalServices/additionalServices.model')
 
 exports.test = (req, res) => {
     return res.status(201).send({ message: 'test is running' });
@@ -54,6 +56,45 @@ exports.addHotel = async (req, res) => {
     }
 }
 
+exports.addAdditionalServicesHotel = async (req, res) => {
+    try {
+      let hotelId = req.params.id;
+      let data = req.body;
+      let hotelExist = await Hotel.findOne({ _id: hotelId });
+      if (!hotelExist)
+        return res.status(404).send({ message: "Hotel not found" });
+    if(hotelExist.admin != req.user.sub) return res.status(400).send({message: 'You do not have permissions'})
+      let serviceExists = await AdditionalServices.findOne({
+        _id: data.additionalService,
+      });
+      if (!serviceExists)
+        return res.status(404).send({ message: "Additional Services not found" });
+      let msg = hotelExist.additionalServices.map((item) => {
+        if (item.additionalServices == data.additionalService) return 400;
+        return 201;
+      });
+      if (msg.includes(400))
+        return res
+          .status(400)
+          .send({ message: "Additional Service already exists" });
+      let updatedHotel = await Hotel.findOneAndUpdate(
+        { _id: hotelId },
+        {
+          additionalServices: [
+            ...hotelExist.additionalServices,
+            {
+              additionalServices: data.additionalService,
+            },
+          ],
+        },
+        { new: true }
+      ).populate('additionalServices.additionalServices');
+      return res.status(201).send({ updatedHotel });
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
 exports.getsHotels = async(req, res) => {
     try{
         let hotels = await Hotel.find().populate('admin', {password: 0}).lean();
@@ -96,7 +137,21 @@ exports.searchByName = async(req, res) => {
     }
 }
 
+exports.deleteHotel = async (req, res) => {
+    try {
+      const hotelId = req.params.id;
+      // Verificar si hay reservaciones asociadas al hotel
+      const reservations = await Bill.find({ hotel: hotelId });
+      if (reservations.length > 0) {
+        return res.status(400).send({
+          message: "Cannot delete hotel. There are reservations associated with it.",
+        });
+      }
 
-
-
-  
+      await Hotel.findOneAndDelete({ _id: hotelId });
+      return res.send({ message: "Hotel deleted successfully" });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).send({ message: "Error deleting hotel" });
+    }
+  };

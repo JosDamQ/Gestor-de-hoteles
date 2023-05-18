@@ -4,6 +4,7 @@ const User = require("./user.model");
 const { encrypt, validateData } = require("../utils/validate");
 const { compare } = require("bcrypt");
 const { createToken } = require("../services/jwt");
+const Bill = require('../bill/bill.model')
 
 exports.test = (req, res) => {
   return res.status(201).send({ message: "User test running" });
@@ -216,8 +217,16 @@ exports.deleteAccount = async (req, res) => {
       return res.status(403).send({ message: "You cant delete this account" });
     let userExists = await User.findOne({_id: userId, $or: [{rol: 'CLIENT'}, {rol: 'WORKER'}]});
     if(!userExists) return res.status(400).send({ message: "Account not found" });
+    const hasReservations = await Bill.exists({ user: userId });
+    if (hasReservations) return res.status(400).send({ message: "Cannot delete account. There are reservations associated with it." });
     if(! await compare(req.body.password, userExists.password))
       return res.status(400).send({ message: "Invalid password, account not deleted" });
+
+    let reservations = await Bill.find({ user: userId });
+    const status = ['CANCELED', 'PAID'];
+    const hasUnCancelableReservations = reservations.some(reservation => !status.includes(reservation.state));
+    if (hasUnCancelableReservations) return res.status(400).send({ message: "Cannot delete account. There are reservations with uncancelable status." });
+
     await User.findOneAndDelete({ _id: userId });
     return res.send({ message: "Account deleted succesfully" });
   } catch (err) {
