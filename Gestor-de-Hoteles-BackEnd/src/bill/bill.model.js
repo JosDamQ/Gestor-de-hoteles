@@ -11,10 +11,11 @@ const billSchema = mongoose.Schema({
   eventDate: String,
   entryDate: String,
   departureDate: String,
-  duration: { type: Number, required: true },
+  duration: { type: Number, default: 0, required: true },
   amountPeople: Number,
   additionalServices: [
     {
+      cant: {type: Number, default: 1},
       additionalService: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'AdditionalServices'
@@ -29,7 +30,7 @@ const billSchema = mongoose.Schema({
       }
     }
   ],
-  paidStatus: {type: Boolean, default: false},
+  state: {type: String, default: 'PENDING', enum: ['PENDING', 'PROGRESS', 'CANCELED', 'PAID']},
   total: Number
 })
 
