@@ -11,5 +11,7 @@ api.post('/add', [ensureAuth, isAdmin], hotelController.addHotel);
 api.get('/gets', hotelController.getsHotels);
 api.get('/get/:id', hotelController.getHotel);
 api.post('/searchByName', hotelController.searchByName);
+api.delete('/deleteHotel/:id', ensureAuth, hotelController.deleteHotel)
+api.put('/addAdditionalService/:id', ensureAuth, hotelController.addAdditionalServicesHotel)
 
 module.exports = api
