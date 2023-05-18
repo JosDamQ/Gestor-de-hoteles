@@ -9,8 +9,9 @@ exports.test = (req, res) =>{
 exports.saveEventType = async(req, res) =>{
     try{
         let data = req.body;
+        if(!data.name || data.name == '' || !data.description || data.description == '' || !data.price || data.price == '') return res.status(400).send({message: 'Params required'});
         //validamos que el tipo de evento ya exista
-        let existEventType = await EventType.findOne({name: data.name});
+        let existEventType = await EventType.findOne({name: data.name, description: data.description});
         if(existEventType) return res.status(400).send({message:'EventType already exists'});
         //Agregamos el tipo de evento
         let newEventType = new EventType(data);
@@ -49,6 +50,7 @@ exports.searchByName = async(req, res)=>{
         let params = {
             name: data.name
         }
+        if(!data.name || data.name == '') return res.status(400).send({message: 'Params required'});
         let eventType = await EventType.find({
             name: {
                 $regex: params.name,
@@ -63,7 +65,7 @@ exports.searchByName = async(req, res)=>{
 }
 
 
-exports.uptadeEventType = async(req, res)=>{
+/*exports.uptadeEventType = async(req, res)=>{
     try{
         let eventTypeId = req.params.id;
         let data = req.body;
@@ -71,6 +73,7 @@ exports.uptadeEventType = async(req, res)=>{
             description: data.description,
             price: data.price
         }
+        if(!data.description || data.description == '' || !data.price || data.price == '') return res.status(400).send({message: 'Params required'});
         let updatedTypeService = await EventType.findByIdAndUpdate(
             { _id: eventTypeId },
             params,
@@ -82,6 +85,35 @@ exports.uptadeEventType = async(req, res)=>{
     }catch(err){
         console.error(err)
         return res.status(500).send({message: 'Error updating an eventType'});
+    }
+}*/
+
+exports.uptadeEventType = async(req,res)=>{
+    try {
+        let eventTypeId = req.params.id;
+        let data = req.body;
+        if(!data.name || data.name == '' || !data.description || data.description == '' || !data.price || data.price == '') return res.status(400).send({message: 'Params required'});
+        let existEventType = await EventType.findOne({name: data.name, description: data.description});
+        if(existEventType){
+            if (existEventType._id != eventTypeId) return res.send({message:'eventType its already created'});
+            let updateEventType = await EventType.findOneAndUpdate(
+                {_id: eventTypeId},
+                data,
+                {new:true}
+            );
+            if(!updateEventType) return res.status(404).send({message:'Not found'});
+            return res.send({updateEventType})
+        }
+        let updateEventType = await EventType.findOneAndUpdate(
+            {_id: eventTypeId},
+            data,
+            {new:true}
+        );
+        if(!updateEventType) return res.status(404).send({message:'Not found'});
+        return res.send({updateEventType})
+    } catch (err) {
+        console.error(err);
+        return res.status(500).send({message:'Error'})
     }
 }
 
