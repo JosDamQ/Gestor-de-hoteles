@@ -6,8 +6,10 @@ import { CardRoom } from "../../components/CardRoom";
 import { CardEvent } from "../../components/cardEvents";
 import { ModalRoom } from '../../components/Modals/ModalRoom'
 import { AuthContext } from '../../Index'
+import Swal from "sweetalert2";
 
 import axios from 'axios'
+import swal from "sweetalert";
 
 export const HomePage = () => {
 
@@ -19,7 +21,8 @@ export const HomePage = () => {
   const [showModalEventType, setShowModalEventType] = useState(false)
   const [showModalReservation, setShowModalReservation] = useState(false)
   const [showModalReservationEvent, setShowModalReservationEvent] = useState(false)
-  const [showModalUser, setShowModalUser] = useState(false)
+  const [showModalWorker, setShowModalWorker] = useState(false)
+  const [showModalRoomUpdate, setShowModalRoomUpdate] = useState(false)
 
     // Modal
     // Funcionalidad de los cards
@@ -28,15 +31,17 @@ export const HomePage = () => {
     const [events, setEvents] = useState([{}])
     // Es el hotel seleccionado, si es que hay alguno
     const [selectedHotel, setSelectedHotel] = useState('');
+    const [selectedRoom, setSelectedRoom] = useState({});
     // Mensajes que van cambiando
     const [message, setMessage] = useState()
     const [message2, setMessage2] = useState();
     const [message3, setMessage3] = useState("");
     // Funcionalidad barra de busqueda
 
+
+
   const [workers, setWorkers] = useState([{}]);
-
-
+  
 
   const [form, setForm] = useState({
     name: '',
@@ -71,6 +76,14 @@ export const HomePage = () => {
     }
   };
 
+  const setModal = (rol) =>{
+    if(rol == 'WORKER'){
+      setShowModalRoomUpdate(true)
+    }else{
+      setShowModalReservation(true)
+    }
+  }
+
   // Llena los card de hoteles
   const headers = {
     'Content-Types': 'aplication/json',
@@ -82,15 +95,29 @@ export const HomePage = () => {
     name: '',
     address: '',
     admin: '',
-    contact: '',
     email: '',
-    phone: '',
-    eventAvailability: ''
+    phone: ''
   })
 
   const handleChangeHotel = (e) => {
     setFormHotel({
       ...formHotel,
+      [e.target.name]: e.target.value
+    })
+  }
+
+  //worker
+  const [formWorker, setFormWorker] = useState({
+    name: '',
+    surname: '',
+    email: '',
+    password: '',
+    phone: ''
+  })
+
+  const handleChangeWorker = (e) => {
+    setFormWorker({
+      ...formWorker,
       [e.target.name]: e.target.value
     })
   }
@@ -142,12 +169,17 @@ export const HomePage = () => {
 
   //reservation
   const [formReservation, setFormReservation] = useState({
-
+    room: '',
+    hotel: '',
+    entryDate: '',
+    duration: ''
   })
 
   const handleChangeReservation = (e) => {
     setFormReservation({
       ...formReservation,
+      room: selectedRoom.id,
+      hotel: selectedHotel.id,
       [e.target.name]: e.target.value
     })
   }
@@ -209,6 +241,17 @@ export const HomePage = () => {
     }
   }
 
+  const addWorkers = async()=>{
+    try {
+      const {data} = await axios.post('http://localhost:2765/User/addWorker',formWorker, {headers: headers})
+    } catch (err) {
+      console.log(err);
+    }
+  }
+  
+
+  
+
   useEffect(()=>getWorkers, []);
   
   const getRoomByHotel = async (hotelId, hotelName, hotelAddress, hotelEmail, hotelPhone) => {
@@ -241,6 +284,39 @@ export const HomePage = () => {
     }
   }
 
+  const deleteHotel = async (idHotel) => {
+    try {
+
+
+        const {data} = await axios.delete(`http://localhost:2765/Hotel/deleteHotel/${idHotel}`, { headers: headers });
+      console.log(data)
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const updateRoom = async(idRoom)=>{
+    try {
+        const {data} = axios.put(`http://localhost:2765/Room/updateRoom/${idRoom}`, formRoom, {headers: headers})
+        setFormRoom({})
+
+    } catch (err) {
+      console.error(err);
+      
+    }
+  }
+
+  const addReservation = async()=>{
+    try {
+        const {data} = axios.post('http://localhost:2765/Bill/createReservation', formReservation, {headers: headers})
+
+
+    } catch (err) {
+      console.error(err);
+      
+    }
+  }
+
   const addRoom = async(e)=>{
     try {
       e.preventDefault()
@@ -262,7 +338,7 @@ export const HomePage = () => {
 
   const addTypeEvent = async()=>{
     try {
-      const { data } = await axios.post('http://localhost:2765/AdditionalMeal/save', formEventType, {headers: headers})
+      const { data } = await axios.post('http://localhost:2765/AdditionalServices/save', formEventType, {headers: headers})
       setFormEventType({})
     } catch (err) {
       console.error(err);
@@ -285,69 +361,6 @@ export const HomePage = () => {
     <>
       <div className="app-container">
         <Navbar onNavbarItemClick={handleNavbarItemClick}/>
-        {/* <section className="navigation">
-          <div className="navigation">
-            <img
-              src="../src/assets/Hotel4All.png"
-              style={{ width: "70px" }}
-              alt="Logo"
-            />
-            <a href="#" className="app-link">
-              Hotel 4 All
-            </a>
-          </div>
-
-          <div className="navigation-links">
-            <a href="#" className="nav-link ">
-              Destinations
-            </a>
-            <a href="#" className="nav-link active">
-              Hotels
-            </a>
-            <a href="#" className="nav-link">
-              Camping
-            </a>
-            <a href="#" className="nav-link">
-              Car Rent
-            </a>
-          </div>
-          <div className="nav-right-side">
-            <button className="mode-switch">
-              <svg
-                className="sun feather feather-sun"
-                fill="none"
-                stroke="#fbb046"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-              >
-                <defs />
-                <circle cx="12" cy="12" r="5" />
-                <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
-              </svg>
-              <svg
-                className="moon feather feather-moon"
-                fill="none"
-                stroke="#ffffff"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-              >
-                <defs />
-                <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
-              </svg>
-            </button>
-            <button className="profile-btn">
-              <span>Su usuario</span>
-              <img
-                src="https://images.unsplash.com/photo-1492633397843-92adffad3d1c?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2167&q=80"
-                alt="pp"
-              />
-            </button>
-          </div>
-        </section> */}
         <section className="app-actions">
           <div className="app-actions-line">
             <div className="search-wrapper">
@@ -413,16 +426,29 @@ export const HomePage = () => {
               </div>
             </div>
           </div>
+        
+        {
+          dataUser.rol == 'ADMIN' ? (
+            <>
+              <br />
+            <h3>Funciones del administrador</h3>
+            <div>
+            <button className="button1" onClick={()=> setShowModalHotel(true)} >Agregar hotel</button>
+            <button className="button1" onClick={()=> setShowModalMeals(true)} >Agregar comida</button>
+            <button className="button1" onClick={()=> setShowModalEventType(true)} >Agregar tipos de eventos</button>
+            <button className="button1" onClick={()=> setShowModalWorker(true)} >Agregar Trabajador</button>
+          </div>
+            </>
+          ) 
+          : (
+            <></>
+          )
+        }
+          
+
         </section>
 
-        <div>
-          
-          <button className="button1" onClick={()=> setShowModalHotel(true)} >Agregar hotel</button>
-          <button className="button1" onClick={()=> setShowModalMeals(true)} >Mostrar comida</button>
-          <button className="button1" onClick={()=> setShowModalEventType(true)} >Mostrar eventos</button>
-          <button className="button1" onClick={()=> setShowModalReservation(true)} >Mostrar reservaicon</button>
-          <button className="button1" onClick={()=> setShowModalReservationEvent(true)} >Mostrar reservacion de evento</button>
-        </div>
+        
 
         <section className="app-main">
           
@@ -439,8 +465,17 @@ export const HomePage = () => {
             <button className="botonAdd" onClick={addRoom} >Agregar Cuarto</button>
           </ModalRoom> : <></>}
 
-          
+          {showModalRoomUpdate ? <ModalRoom titleModal= {'Editar Cuarto'} showModalRoom={showModalRoomUpdate} setShowModalRoom={setShowModalRoomUpdate}>
+            
+            <input className="inputModal" type='text' placeholder='Nombre' defaultValue={selectedRoom.name} name='name' onChange={handleChangeRoom} required />
+            <input className="inputModal" type='number' placeholder='Numero de cuarto' defaultValue={selectedRoom.number} name='number' onChange={handleChangeRoom} required />
+            <input className="inputModal" type='text' placeholder='Descripcion' defaultValue={selectedRoom.description} name='description' onChange={handleChangeRoom} required />
+            <input className="inputModal" type='number' placeholder='Precio' name='price' defaultValue={selectedRoom.price} onChange={handleChangeRoom} required />
+            <button className="botonAdd" onClick={updateRoom(selectedRoom._id)} >Editar Cuarto</button>
+          </ModalRoom> : <></>}
+
           {
+            
             //Mostrar modal de hotel
           }
           {showModalHotel ? <ModalRoom titleModal= {'Agregar Hotel'} showModalRoom={showModalHotel} setShowModalRoom={setShowModalHotel}>
@@ -454,11 +489,9 @@ export const HomePage = () => {
                 })
               }
             </select>
-            <input className="inputModal" type='number' placeholder='Contacto' name='contact' onChange={handleChangeHotel} required />
             <input className="inputModal" type='text' placeholder='Email' name='email' onChange={handleChangeHotel} required />
             <input className="inputModal" type='number' placeholder='Telefono' name='phone' onChange={handleChangeHotel} required />
-            <input className="inputModal" type='text' placeholder='Disponibilida de eventos' name='eventAvailability' onChange={handleChangeHotel} required />
-            <button className="botonAdd" onClick={(e)=>{addHotel(), (e).preventDefault(e)}} >Agregar Hotel</button>
+            <button className="botonAdd" onClick={addHotel} >Agregar Hotel</button>
           </ModalRoom> : <></>}
 
           {
@@ -482,14 +515,6 @@ export const HomePage = () => {
           </ModalRoom> : <></>}
 
           {
-            //Mostrar modal de reservacion de cuarto
-          }
-          {showModalReservation ? <ModalRoom titleModal= {'Agregar Reservacion de cuarto'} showModalRoom={showModalReservation} setShowModalRoom={setShowModalReservation}>
-            <p>No agregar hotel</p>
-            <button onClick={()=>alert("hola mundo")} >Alerta</button>
-          </ModalRoom> : <></>}
-
-          {
             //Mostrar modal de reservacion de evento
           }
           {showModalReservationEvent ? <ModalRoom titleModal= {'Agregar Reservacion de evento'} showModalRoom={showModalReservationEvent} setShowModalRoom={setShowModalReservationEvent}>
@@ -498,8 +523,22 @@ export const HomePage = () => {
           </ModalRoom> : <></>}
 
           {
-            //Mostrar modal de Usuario
+            //modal Workers
           }
+          {showModalWorker ? <ModalRoom titleModal= {'Agregar Trabajador'} showModalRoom={showModalWorker} setShowModalRoom={setShowModalWorker}>
+            <input className="inputModal" type='text' placeholder='Nombre' name='name' onChange={handleChangeWorker} required />
+            <input className="inputModal" type='text' placeholder='Surname' name='surname' onChange={handleChangeWorker} required />
+            <input className="inputModal" type='text' placeholder='Email' name='email' onChange={handleChangeWorker} required />
+            <input className="inputModal" type='text' placeholder='Password' name='password' onChange={handleChangeWorker} required />
+            <input className="inputModal" type='text' placeholder='Phone' name='phone' onChange={handleChangeWorker} required />
+            <button className="botonAdd" onClick={addWorkers} >Agregar Trabajador</button>
+          </ModalRoom> : <></>}
+
+          {showModalReservation ? <ModalRoom titleModal= {'Agregar Reservacion'} showModalRoom={showModalReservation} setShowModalRoom={setShowModalReservation}>
+            <input className="inputModal" type='text' placeholder='Fecha de entrada' name='entryDate' onChange={handleChangeEventReservation} required />
+            <input className="inputModal" type='number' placeholder='Duracion' name='duration' onChange={handleChangeEventReservation} required />
+            <button className="botonAdd" onClick={addReservation} >Agregar reservacion</button>
+          </ModalRoom> : <></>}
 
 
           <div className="app-main-left cards-area">
@@ -529,7 +568,7 @@ export const HomePage = () => {
                     number={number}
                     price={price}
                     description={description}
-                    onClick={()=> {}}
+                    onClick={()=> {setSelectedRoom({_id, name, number, price, description}), setModal(dataUser.rol)}}
                   ></CardRoom>
                 );
               })
@@ -561,10 +600,25 @@ export const HomePage = () => {
                 <br></br>
               </div>
               {selectedHotel ? (
-                <div>
-                  <button className="button1" onClick={()=> setShowModalRoom(true)} >Agregar cuarto</button>
-                  <button className="button1" onClick={()=> setShowModalRoom(true)} >Editar Hotel</button>
-                </div>
+                dataUser.rol == 'WORKER' ? (
+                  <>
+                    <div>
+                      <button className="button1" onClick={()=> setShowModalRoom(true)} >Agregar cuarto</button>
+                      <button className="button1" onClick={()=> setShowModalRoom(true)} >Agregar Servicios adicionales</button>
+                      <button className="button1" onClick={()=> setShowModalRoom(true)} >Agregar Comidas Disponibles</button>
+                      <button className="button1" onClick={()=> setShowModalRoom(true)} >Agregar Tipos de eventos</button>
+                      
+                    </div>
+                  </>
+                ) : 
+                dataUser.rol == 'ADMIN' ? (
+                  <>
+                    
+                  </>
+                ) : (
+                  <></>
+                )
+                
               ) : <></>
                 
               }

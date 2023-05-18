@@ -4,19 +4,26 @@ import { AuthContext } from "../Index";
 import "./Navbar.css";
 import { Link, useNavigate } from "react-router-dom";
 
+
 export const Navbar = ({ onNavbarItemClick }) => {
 
   const {dataUser, setDataUser} = useContext(AuthContext)
+  const navigate = useNavigate()
 
   const headers = {
     'Content-Types': 'aplication/json',
     'Authorization': localStorage.getItem('token')
   }
 
+  const logOut = ()=>{
+    localStorage.clear()
+    navigate('/')
+    setDataUser('')
+}
+
   const getUser = async () => {
     try {
       const { data } = await axios('http://localhost:2765/User/myInfo', {headers: headers});
-      console.log(data.myInfo.sub)
       setDataUser({
         sub: data.myInfo.sub,
         name: data.myInfo.name,
@@ -93,6 +100,9 @@ export const Navbar = ({ onNavbarItemClick }) => {
             <defs />
             <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
           </svg>
+          </button>
+        <button className="logOut" onClick={logOut}>
+          logOut
         </button>
         <Link to='/infoUser'>
           <button className="profile-btn">

@@ -52,21 +52,25 @@ exports.createReservation = async (req, res) => {
       room: data.room,
       $or: [{ state: "PENDING" }, { state: "PROGRESS" }],
     });
-    let entry = Date.parse(moment(data.entryDate, 'DD/MM/YYYY'))
-    let departure = Date.parse(moment(data.departureDate, 'DD/MM/YYYY'))
-    let dateProcess = availabilityRoom.filter(item =>{
-      let menor = Date.parse(moment(item.entryDate, 'DD/MM/YYYY'))
-      let mayor = Date.parse(moment(item.departureDate, 'DD/MM/YYYY'))
-      if((entry >= menor  && entry < mayor) ||
-      (departure > menor && departure <= mayor)) return item
-    })
+    let entry = Date.parse(moment(data.entryDate, "DD/MM/YYYY"));
+    let departure = Date.parse(moment(data.departureDate, "DD/MM/YYYY"));
+    let dateProcess = availabilityRoom.filter((item) => {
+      let menor = Date.parse(moment(item.entryDate, "DD/MM/YYYY"));
+      let mayor = Date.parse(moment(item.departureDate, "DD/MM/YYYY"));
+      if (
+        (entry >= menor && entry < mayor) ||
+        (departure > menor && departure <= mayor)
+      )
+        return item;
+    });
     if (dateProcess.length != 0)
       return res
         .status(400)
         .send({ message: "Room has a reservation on this date" });
     data.total = roomExists.price * data.duration;
     console.log(data.entryDate);
-    if(data.entryDate == 'Invalid date') return res.send({message: data.entryDate})
+    if (data.entryDate == "Invalid date")
+      return res.send({ message: data.entryDate });
     let newReservation = new Bill(data);
     await newReservation.save();
     return res.send({ message: "Reservation created successfully" });
@@ -81,47 +85,45 @@ exports.addAdditionalServicesReservation = async (req, res) => {
     let reservationId = req.params.id;
     let data = req.body;
     let reservationExists = await Bill.findOne({ _id: reservationId });
-    if (!reservationExists)
-      return res.status(404).send({ message: "Reservation not found" });
-    let serviceHotelExists = await Hotel.findOne({_id: reservationExists.hotel}).populate('additionalServices');
-    let serviceHotel = serviceHotelExists.additionalServices.map(item => {
-      let additionalService = item.additionalServices.toString()
-      console.log(serviceHotelExists);
-      if(additionalService == data.additionalService) return item.additionalServices
-    })
-    console.log(serviceHotel);
-    if(serviceHotel == undefined) return res.status(400).send({message: 'AdditionalService not found'})
-    let serviceExists = await AdditionalServices.findOne({_id: serviceHotel[0]});
-    console.log(serviceExists);
-    let msg = reservationExists.additionalServices.map((item) => {
-      if (item.additionalService == data.additionalService) return 400;
+    if (!leaseExists)
+      return res.status(404).send({ message: "Lease not found" });
+    // Validar que el servicio exista
+    let serviceExists = await AdditionalServices.findOne({
+      _id: data.additionalService,
+    });
+    if (!serviceExists)
+      return res.status(404).send({ message: "Additional Services not found" });
+    // Validar que no esté en el arreglo
+    let msg = leaseExists.additionalServices.map((item) => {
+      if (item.service == data.additionalService) return 400;
       return 201;
     });
     if (msg.includes(400))
       return res
         .status(400)
         .send({ message: "Additional Service already exists" });
-    let total =
-      reservationExists.total +
-      serviceExists.price * reservationExists.duration;
-    let updatedBill = await Bill.findOneAndUpdate(
-      { _id: reservationId },
+    // cambiar total
+    let total = leaseExists.total + serviceExists.price * leaseExists.month;
+    // Agregar servicio adicional al arrendamiento
+    let updatedLease = await Lease.findOneAndUpdate(
+      { _id: leaseId },
       {
         total: total,
         additionalServices: [
-          ...reservationExists.additionalServices,
+          ...leaseExists.additionalServices,
           {
-            additionalService: data.additionalService,
+            service: data.additionalService,
           },
         ],
       },
       { new: true }
-    ).populate(`additionalServices.additionalService`);
-    return res.status(201).send({ updatedBill });
+    ).populate(`additionalServices.service`);;
+    return res.status(201).send({ updatedLease });
   } catch (err) {
     console.log(err);
   }
 };
+
 
 exports.getReservations = async(req, res)=>{
   try {

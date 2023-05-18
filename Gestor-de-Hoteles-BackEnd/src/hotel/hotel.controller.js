@@ -140,18 +140,36 @@ exports.searchByName = async(req, res) => {
 exports.deleteHotel = async (req, res) => {
     try {
       const hotelId = req.params.id;
-      // Verificar si hay reservaciones asociadas al hotel
+      const hotel = await Hotel.findById(hotelId);
+      if(!hotel) return res.status(404).send({message: 'Hotel not found'})
+      const adminId = hotel.admin;
       const reservations = await Bill.find({ hotel: hotelId });
       if (reservations.length > 0) {
         return res.status(400).send({
           message: "Cannot delete hotel. There are reservations associated with it.",
         });
       }
-
       await Hotel.findOneAndDelete({ _id: hotelId });
-      return res.send({ message: "Hotel deleted successfully" });
-    } catch (err) {
+      //await User.findOneAndDelete({_id: adminId})
+      return res.send({ message: "Hotel and Admin deleted successfully" });
+    }catch (err) {
       console.error(err);
       return res.status(500).send({ message: "Error deleting hotel" });
     }
-  };
+}
+
+exports.getHotelByWorker = async (req, res) => {
+    try {
+      const workerId = req.params.id;
+      const hotels = await Hotel.find({ admin: workerId });
+
+      if (hotels.length === 0) {
+        return res.status(404).send({ message: "No hotels found for this worker" });
+      }
+
+      return res.send({ hotels });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).send({ message: "Error getting hotels" });
+    }
+}

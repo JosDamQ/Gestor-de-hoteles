@@ -1,5 +1,6 @@
 import React, {useContext, useEffect} from 'react'
 import '../InfoUserPage/InfoUserPage.css'
+import './InfoUserPage.css'
 import { AuthContext } from "../../Index";
 import axios from "axios";
 //import 'bootstrap/dist/css/bootstrap.min.css'

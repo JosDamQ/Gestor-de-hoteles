@@ -15,6 +15,7 @@ const billSchema = mongoose.Schema({
   amountPeople: Number,
   additionalServices: [
     {
+      cant: {type: Number, default: 1},
       additionalService: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'AdditionalServices'
