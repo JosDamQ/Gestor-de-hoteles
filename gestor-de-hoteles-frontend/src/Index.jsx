@@ -8,6 +8,10 @@ import { RegisterPage } from "./pages/RegisterPage/RegisterPage";
 //import { infoUser } from "./pages/InfoUserPage/infoUser";
 //import { infoUser } from "./pages/InfoUserPage/infoUser"
 import { InfoUserPage } from "./pages/InfoUserPage/InfoUserPage";
+import { Users } from "./pages/Users/Users";
+import { Workers } from "./pages/Users/Workers";
+import { MainPage } from "./pages/Main/MainPage";
+import SimpleBarCharts from "./components/SimpleBarCharts";
 
 export const AuthContext = createContext();
 
@@ -32,12 +36,25 @@ export const Index = () => {
           element: <HomePage></HomePage>,
         },
         {
+          path: 'main',
+          element: <MainPage></MainPage>
+
+        },
+        {
           path: "login",
           element: <LoginPage></LoginPage>,
         },
         {
           path: "register",
           element: <RegisterPage></RegisterPage>,
+        },
+        {
+          path: "Users",
+          element: <Users></Users>,
+        },
+        {
+          path: "Workers",
+          element: <Workers></Workers>,
         },
         // {
         //   path: "reservation",
@@ -46,6 +63,10 @@ export const Index = () => {
         {
           path: "infoUser",
           element: <InfoUserPage></InfoUserPage>,
+        },
+        {
+          path: "stats",
+          element: <SimpleBarCharts></SimpleBarCharts>
         }
       ],
     },

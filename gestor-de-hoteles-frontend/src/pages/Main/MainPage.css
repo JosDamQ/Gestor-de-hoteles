@@ -1,0 +1,69 @@
+body {
+    overflow: hidden;
+  }
+
+.page-content {
+    display: flex;
+    min-height: 100vh;
+    background-image: url('../../assets/Fondo_Main.jpg');
+    background-repeat: no-repeat; /* Evita que la imagen se repita */
+    background-size: cover;
+    overflow-y: auto;
+  }
+  
+  .left-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background-color: rgba(0, 74, 173, 0.8);
+  }
+  
+  .right-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background-color: rgba(190, 225, 143, 0.7);
+  }
+  
+  .content-wrapper {
+    text-align: center;
+  }
+  
+  .big-text {
+    font-size: 32px;
+    margin-bottom: 20px;
+    color: white;
+  }
+  
+/* Estilos del botón */
+.button {
+    background-color: transparent;
+    border: 3px solid white;
+    border-radius: 8px;
+    color: white;
+    transition: background-color 0.3s ease;
+  }
+  
+  /* Estilos del botón al pasar el mouse por encima */
+  .button:hover {
+    background-color: green;
+  }
+  
+  
+  .title {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+  
+  .small-text {
+    font-size: 14px;
+    text-align: center;
+    margin-left: 20%;
+    margin-right: 20%;
+  }

@@ -9,7 +9,7 @@ const AdditionalServices = require("../additionalServices/additionalServices.mod
 const AdditionalMeals = require("../additionalMeals/additionalMeals.model");
 const EventType = require("../eventType/eventType.model");
 const moment = require("moment");
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
 
 exports.test = (req, res) => {
   return res.send({ message: "Bill test running" });
@@ -85,101 +85,184 @@ exports.addAdditionalServicesReservation = async (req, res) => {
     let reservationId = req.params.id;
     let data = req.body;
     let reservationExists = await Bill.findOne({ _id: reservationId });
-    if (!leaseExists)
-      return res.status(404).send({ message: "Lease not found" });
-    // Validar que el servicio exista
+    if (!reservationExists)
+      return res.status(404).send({ message: "Reservation not found" });
+    let serviceHotelExists = await Hotel.findOne({
+      _id: reservationExists.hotel,
+    }).populate("additionalServices");
+    let serviceHotel = serviceHotelExists.additionalServices.filter((item) =>
+      item.additionalServices.equals(data.additionalService)
+    );
+    if (serviceHotel.length == 0)
+      return res.status(400).send({ message: "AdditionalService not found" });
     let serviceExists = await AdditionalServices.findOne({
-      _id: data.additionalService,
+      _id: serviceHotel[0].additionalServices,
     });
-    if (!serviceExists)
-      return res.status(404).send({ message: "Additional Services not found" });
-    // Validar que no esté en el arreglo
-    let msg = leaseExists.additionalServices.map((item) => {
-      if (item.service == data.additionalService) return 400;
+    let msg = reservationExists.additionalServices.map((item) => {
+      if (item.additionalService == data.additionalService) return 400;
       return 201;
     });
     if (msg.includes(400))
       return res
         .status(400)
         .send({ message: "Additional Service already exists" });
-    // cambiar total
-    let total = leaseExists.total + serviceExists.price * leaseExists.month;
-    // Agregar servicio adicional al arrendamiento
-    let updatedLease = await Lease.findOneAndUpdate(
-      { _id: leaseId },
+    let total =
+      reservationExists.total +
+      serviceExists.price * reservationExists.duration;
+    let updatedBill = await Bill.findOneAndUpdate(
+      { _id: reservationId },
       {
         total: total,
         additionalServices: [
-          ...leaseExists.additionalServices,
+          ...reservationExists.additionalServices,
           {
-            service: data.additionalService,
+            additionalService: data.additionalService,
           },
         ],
       },
       { new: true }
-    ).populate(`additionalServices.service`);;
-    return res.status(201).send({ updatedLease });
+    ).populate(`additionalServices.additionalService`);
+    return res.status(201).send({ updatedBill });
   } catch (err) {
     console.log(err);
   }
 };
 
-
-exports.getReservations = async(req, res)=>{
+exports.addAdditionalMealsReservation = async (req, res) => {
   try {
-      let reservations = await Bill.findOne({description: 'RESERVATION'})
-      .populate('user', {password: 0})
-      .populate('hotel', {eventAvailability: 0})
-      .populate('room', {available: 0})
-      .populate('additionalServices.additionalService')
-      .populate('additionalMeals.additionalMeal')
-      return res.send({reservations});
+    let reservationId = req.params.id;
+    let data = req.body;
+    let reservationExists = await Bill.findOne({ _id: reservationId });
+    if (!reservationExists)
+      return res.status(404).send({ message: "Reservation not found" });
+    let serviceHotelExists = await Hotel.findOne({
+      _id: reservationExists.hotel,
+    }).populate("additionalMeals");
+    let serviceHotel = serviceHotelExists.AdditionalMeals.filter((item) =>
+      item.AdditionalMeal.equals(data.additionalMeal)
+    );
+    if (serviceHotel.length == 0)
+      return res.status(400).send({ message: "AdditionalMeal not found" });
+    let serviceExists = await AdditionalMeals.findOne({
+      _id: serviceHotel[0].additionalMeal,
+    });
+    let msg = reservationExists.additionalMeals.map((item) => {
+      if (item.additionalMeal == data.additionalMeal) return 400;
+      return 201;
+    });
+    let total =
+      reservationExists.total +
+      serviceExists.price * reservationExists.duration;
+    let updatedBill = await Bill.findOneAndUpdate(
+      { _id: reservationId },
+      {
+        total: total,
+        additionalMeals: [
+          ...reservationExists.additionalMeals,
+          {
+            additionalMeal: data.additionalMeal,
+          },
+        ],
+      },
+      { new: true }
+    ).populate(`additionalMeals.additionalMeal`);
+    return res.status(201).send({ updatedBill });
   } catch (err) {
     console.log(err);
-    return res.status(500).send({message: 'Error getting reservations'});
   }
-}
+};
 
-exports.getMyReservations = async(req, res)=>{
+exports.getReservations = async (req, res) => {
   try {
-      let me = req.user
-      if(me.rol != 'CLIENT' || me.sub != req.params.id) return res.status(400).send({message: 'You do not have permissions'});
-      let reservations = await Bill.find({user: me.sub, description: 'RESERVATION'})
-      .populate('user', {password: 0})
-      .populate('hotel', {eventAvailability: 0})
-      .populate('room', {available: 0})
-      .populate('additionalServices.additionalService')
-      .populate('additionalMeals.additionalMeal')
-      return res.send({reservations})
+    let reservations = await Bill.findOne({ description: "RESERVATION" })
+      .populate("user", { password: 0 })
+      .populate("hotel", { eventAvailability: 0 })
+      .populate("room", { available: 0 })
+      .populate("additionalServices.additionalService")
+      .populate("additionalMeals.additionalMeal");
+    return res.send({ reservations });
   } catch (err) {
     console.log(err);
-    return res.send({message: 'Error getting reservations'});
+    return res.status(500).send({ message: "Error getting reservations" });
   }
-}
+};
 
-exports.getUsersByHotel = async(req, res)=>{
+exports.getMyReservations = async (req, res) => {
   try {
-    if(req.user.rol != 'WORKER') return res.send(400).send({message: 'You do not have permissions'});
-    let hotel = await Hotel.findOne({admin: req.user.sub});
-    let reservations = await Bill.find({hotel: hotel._id, state: 'PENDING'});
-
-    let user = []
-    reservations.forEach(item =>{
-      if(!user.includes(item.user.toString())) user.push(item.user.toString());
+    let me = req.user;
+    if (me.rol != "CLIENT" || me.sub != req.params.id)
+      return res.status(400).send({ message: "You do not have permissions" });
+    let reservations = await Bill.find({
+      user: me.sub,
+      description: "RESERVATION",
     })
-
-    let users = await Promise.all(user.map(async item =>{
-      let userId = new mongoose.Types.ObjectId(item);
-      let myUser = await User.findOne({_id: userId}).lean();
-      delete myUser.password
-      return myUser;
-    }))
-    return res.send({users});
+      .populate("user", { password: 0 })
+      .populate("hotel", { eventAvailability: 0 })
+      .populate("room", { available: 0 })
+      .populate("additionalServices")
+      .populate("additionalMeals.additionalMeals");
+    return res.send({ reservations });
   } catch (err) {
     console.log(err);
-    return res.status(500).send({message: 'Error getting user'});
+    return res.send({ message: "Error getting reservations" });
   }
-}
+};
+
+exports.getUsersByHotel = async (req, res) => {
+  try {
+    if (req.user.rol != "WORKER")
+      return res.send(400).send({ message: "You do not have permissions" });
+    let hotel = await Hotel.findOne({ admin: req.user.sub });
+    let reservations = await Bill.find({ hotel: hotel._id, state: "PENDING" });
+
+    let user = [];
+    reservations.forEach((item) => {
+      if (!user.includes(item.user.toString())) user.push(item.user.toString());
+    });
+
+    let users = await Promise.all(
+      user.map(async (item) => {
+        let userId = new mongoose.Types.ObjectId(item);
+        let myUser = await User.findOne({ _id: userId }).lean();
+        delete myUser.password;
+        return myUser;
+      })
+    );
+    return res.send({ users });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({ message: "Error getting user" });
+  }
+};
+
+exports.confirmReservation = async (req, res) => {
+  try {
+    let reservationId = req.params.id;
+    let me = req.user;
+    let reservation = await Bill.findOne({
+      _id: reservationId,
+      description: "RESERVATION",
+      $or: [{ state: "PENDING" }, { state: "PROGRESS" }],
+    }).populate("hotel");
+    if(!reservation) return res.status(400).send({message: 'Reservation not found'});
+    if (
+      (me.rol == "WORKER" && me.sub != reservation.hotel.admin) ||
+      (me.rol == "CLIENT" && me.sub != reservation.user) ||
+      me.rol == "ADMIN"
+    )
+      return res.status(400).send({ message: "You dont have permissions" });
+    let confirmReservation = await Bill.findOneAndUpdate({_id: reservationId}, {state: 'PAID'}, {new: true})
+    .populate('user', {password: 0})
+    .populate('hotel')
+    .populate('room')
+    .populate('additionalServices.additionalService')
+    .populate('additionalMeals.additionalMeal')
+    return res.send({ confirmReservation });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({ message: "Error confirming reservation" });
+  }
+};
 
 exports.createEvent = async (req, res) => {
   try {

@@ -13,15 +13,15 @@ export const Card = ({_id, name, address, email, phone, onClick}) => {
         <div className="card-info">
           <div className="card-text big cardText-js">{name}</div>
           <div className="card-text small">
-            Starts from:
+            Address:
             <span className="card-price">{address}</span>
           </div>
           <div className="card-text small">
-            Starts from:
+            Email:
             <span className="card-price">{email}</span>
           </div>
           <div className="card-text small">
-            Starts from:
+            Contact:
             <span className="card-price">{phone}</span>
           </div>
         </div>

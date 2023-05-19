@@ -72,7 +72,20 @@ exports.register = async (req, res) => {
     let data = req.body;
     let msg = validateData({ password: data.password });
     if (msg) return res.status(404).send({ msg });
-    data.password = await encrypt(data.password);
+    if (
+      !data.email.includes("@gmail") &&
+      !data.email.includes("@outlook") &&
+      !data.email.includes("@yahoo") &&
+      !data.email.includes("@hotmail")
+    ) return res.status(400).send({
+        message: `Invalid email. Email must contain @ and a valid extension 'yahoo, hotmail, gmail, outlook'`
+      });
+    if(data.email.indexOf('.') < data.email.indexOf('@'))
+      return res.send({message: 'Invalid email. Email must contain . after @'});
+    if(!data.email.includes('.com') && !data.email.includes('.gt') && !data.email.includes('.org'))
+      return res.status(200).send({message: `Invalid email. Email must contain a valid domain '.com, .gt, .org'`})
+    if(data.email.indexOf('@') < 6) return res.send({message: 'The body of email must contain at least six characters'});
+    if (data.email) data.password = await encrypt(data.password);
     data.rol = "CLIENT";
     let newUser = new User(data);
     await newUser.save();
@@ -222,17 +235,14 @@ exports.deleteAccount = async (req, res) => {
   try {
     let userId = req.params.id;
     let me = req.user;
-    let msg = validateData({password: req.body.password})
-    if(msg) return res.status(400).send({msg})
     if ((me.rol == 'CLIENT' && me.sub != userId) || me.rol == 'WORKER')
       return res.status(403).send({ message: "You cant delete this account" });
     let userExists = await User.findOne({_id: userId, $or: [{rol: 'CLIENT'}, {rol: 'WORKER'}]});
     if(!userExists) return res.status(400).send({ message: "Account not found" });
     const hasReservations = await Bill.exists({ user: userId });
     if (hasReservations) return res.status(400).send({ message: "Cannot delete account. There are reservations associated with it." });
-    if(! await compare(req.body.password, userExists.password))
-      return res.status(400).send({ message: "Invalid password, account not deleted" });
-
+    /* if(! await compare(req.body.password, userExists.password))
+      return res.status(400).send({ message: "Invalid password, account not deleted" }); */
     let reservations = await Bill.find({ user: userId });
     const status = ['CANCELED', 'PAID'];
     const hasUnCancelableReservations = reservations.some(reservation => !status.includes(reservation.state));

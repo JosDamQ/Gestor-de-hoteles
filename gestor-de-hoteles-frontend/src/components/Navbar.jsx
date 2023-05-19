@@ -17,8 +17,20 @@ export const Navbar = ({ onNavbarItemClick }) => {
 
   const logOut = ()=>{
     localStorage.clear()
-    navigate('/')
+    navigate('/main')
     setDataUser('')
+}
+
+const checkLogin = async =>{
+  try{
+    if(!localStorage.getItem('token')) {
+      navigate('/register')
+    } else{
+      navigate('/infoUser')
+    }
+  }catch(err){
+    console.error(err)
+  }
 }
 
   const getUser = async () => {
@@ -54,24 +66,40 @@ export const Navbar = ({ onNavbarItemClick }) => {
           src="../src/assets/Hotel4All.png"
           className="imgNavbar"
           alt="Logo"
-          onClick={() => handleNavbarItemClick("Hotels")}
+          onClick={() => navigate('/main')}
         />
-          <a onClick={() => handleNavbarItemClick("Hotels")} className="app-link">
+          <a onClick={() => navigate('/main')} className="app-link">
             Hotel 4 All
           </a>
       </div>
       <input id="buttonList" type="checkbox"/>
       
       <div className="navigation-links">
-        <a  className="nav-link active" onClick={() => handleNavbarItemClick("Events")}>
+        <a  className="nav-link active" onClick={() => {handleNavbarItemClick("Events"), navigate('/')} }>
           Event
         </a>
-        <a  className="nav-link active" onClick={() => handleNavbarItemClick("Hotels")}>
+        <a  className="nav-link active" onClick={() => {handleNavbarItemClick("Hotels"), navigate('/')}}>
           Hotel
         </a>
-        <a  className="nav-link active" onClick={() => handleNavbarItemClick("Stats")}>
+        <a  className="nav-link active" onClick={() =>{ handleNavbarItemClick("Stats"), navigate('/stats')}}>
           Estadisticas
         </a>
+
+        {
+          dataUser.rol == 'ADMIN' ? (
+            <a  className="nav-link active" onClick={() => navigate('/Users')}>
+              Users
+            </a>
+          ) : (<></>)
+        }
+
+      {
+          dataUser.rol == 'ADMIN' ? (
+            <a  className="nav-link active" onClick={() => navigate('/Workers')}>
+              Workers
+            </a>
+          ) : (<></>)
+        }
       </div>
       <div className="nav-right-side">
         <button className="mode-switch">
@@ -104,15 +132,13 @@ export const Navbar = ({ onNavbarItemClick }) => {
         <button className="logOut" onClick={logOut}>
           logOut
         </button>
-        <Link to='/infoUser'>
-          <button className="profile-btn">
+          <button className="profile-btn" onClick={checkLogin} >
             <span>{dataUser.email}</span>
             <img
               src="https://images.unsplash.com/photo-1492633397843-92adffad3d1c?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2167&q=80"
               alt="pp"
             />
           </button>
-          </Link>
       </div>
     </section>
   );

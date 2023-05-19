@@ -16,7 +16,7 @@ const billSchema = mongoose.Schema({
   additionalServices: [
     {
       cant: {type: Number, default: 1},
-      additionalService: {
+      additionalServices: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'AdditionalServices'
       }
@@ -24,7 +24,7 @@ const billSchema = mongoose.Schema({
   ],
   additionalMeals: [
     {
-      additionalMeal: {
+      additionalMeals: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'AdditionalMeals'
       }
