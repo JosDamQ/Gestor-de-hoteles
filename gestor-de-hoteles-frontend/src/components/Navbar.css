@@ -1,0 +1,62 @@
+.imgNavbar{
+  width: 70px
+}
+#buttonList{
+  display: none;
+}
+section.navigation{
+  height: 80px;
+}
+@media screen and (max-width: 812px) {
+  div.navigation{
+    display: none;
+  }
+  section.navigation{
+    position: sticky;
+    top: 0;
+    z-index: 21;
+    height: 55px;
+    background: #fff;
+  }
+  #buttonList{
+    cursor: pointer;
+    height: 32px;
+    width: 32px;
+    display: inline;
+    background: none;
+    background-image: url("../assets/list.svg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    appearance: none;
+  }
+  #buttonList + .navigation-links{
+    position: fixed;
+    z-index: 20;
+    flex-direction: column;
+    justify-content: start;
+    min-width: 100%;
+    height: calc(100% - 55px);
+    top: 55px;
+    left: -100%;
+    transition: left .6s cubic-bezier(0.25, 0.46, 0.45, 0.94)
+  }
+  .navigation-links .nav-link.active{
+    color:rgba(0, 170, 23, 0.8);
+  }
+  .navigation-links .nav-link{
+    line-height: 4;
+    padding-left: 30px;
+    margin: 0;
+    height: 56px;
+    transition: padding-left .4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    font-size: 20px;
+    font-family: 'Fantasy';
+  }
+  .navigation-links .nav-link:hover{
+    padding-left: 65px;
+  }
+  #buttonList:checked ~ .navigation-links{
+    background: rgba(0, 0, 0, .8);
+    left: 0;
+  }
+}
